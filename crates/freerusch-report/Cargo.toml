@@ -1,0 +1,13 @@
+[package]
+name = "freerusch-report"
+description = "Geração da memória de cálculo do FreeRusch em HTML, com escrita atômica via craft-atomic e submissão de impressão via craft-print"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[dependencies]
+freerusch-core = { workspace = true }
+craft-print    = { workspace = true }
+craft-atomic   = { workspace = true }
+thiserror      = { workspace = true }
