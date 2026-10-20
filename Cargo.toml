@@ -1,0 +1,39 @@
+[workspace]
+resolver = "3"
+members = [
+    "crates/freerusch-core",
+    "crates/freerusch-report",
+    "apps/freerusch",
+]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2024"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/storytold/freerusch"
+
+[workspace.dependencies]
+# Bibliotecas da família Craft, fixadas no commit mais recente do branch padrão
+# de https://github.com/storytold/craft-libs (resolvido com
+# `git ls-remote https://github.com/storytold/craft-libs HEAD` em 2026-10-20).
+craft-core     = { git = "https://github.com/storytold/craft-libs", rev = "ae2f796b673f29cf3161f36eb6a8933f0a3fe028" }
+craft-ui       = { git = "https://github.com/storytold/craft-libs", rev = "ae2f796b673f29cf3161f36eb6a8933f0a3fe028" }
+craft-settings = { git = "https://github.com/storytold/craft-libs", rev = "ae2f796b673f29cf3161f36eb6a8933f0a3fe028" }
+craft-atomic   = { git = "https://github.com/storytold/craft-libs", rev = "ae2f796b673f29cf3161f36eb6a8933f0a3fe028" }
+craft-print    = { git = "https://github.com/storytold/craft-libs", rev = "ae2f796b673f29cf3161f36eb6a8933f0a3fe028" }
+
+freerusch-core   = { path = "crates/freerusch-core" }
+freerusch-report = { path = "crates/freerusch-report" }
+
+eframe = { version = "0.36", default-features = false, features = [
+    "glow",
+    "default_fonts",
+    "wayland",
+    "x11",
+] }
+egui = "0.36"
+thiserror = "2"
+
+[profile.release]
+lto = "thin"
+strip = true

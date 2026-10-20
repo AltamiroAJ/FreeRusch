@@ -1,0 +1,14 @@
+/target
+**/target
+Cargo.lock
+*.rlib
+*.d
+
+# staging files left by craft-atomic after an abnormal exit
+.*.craft_tmp
+
+# editor/os noise
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
