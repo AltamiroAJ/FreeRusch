@@ -1,0 +1,25 @@
+[package]
+name = "freerusch"
+description = "FreeRusch — cálculo estrutural de lajes de pontes pelo método de Rüsch (família Craft, pure Rust)"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[[bin]]
+name = "freerusch"
+path = "src/main.rs"
+
+[dependencies]
+freerusch-core   = { workspace = true }
+freerusch-report = { workspace = true }
+# `craft-core` não existe (ainda) no craft-libs — o núcleo GUI da família é o
+# próprio `craft-ui` sobre `egui`/`eframe`. A dependência fica registrada em
+# [workspace.dependencies] para quando a lib for publicada; ver PR.
+craft-ui         = { workspace = true }
+craft-settings   = { workspace = true }
+craft-atomic     = { workspace = true }
+craft-print      = { workspace = true }
+eframe           = { workspace = true }
+egui             = { workspace = true }
+serde            = { version = "1", features = ["derive"] }

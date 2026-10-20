@@ -1,0 +1,10 @@
+[package]
+name = "freerusch-core"
+description = "Motor de cálculo puro em Rust para lajes de pontes pelo método de Rüsch (tabelas, interpolação, trens-tipo NBR 7188 e diagramas de momentos)"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[dependencies]
+thiserror = { workspace = true }
