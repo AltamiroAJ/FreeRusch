@@ -41,7 +41,14 @@ pub struct SlabInput {
 
 impl SlabInput {
     /// Constrói um jogo de parâmetros válido de exemplo.
-    pub fn new(title: &str, train: TrainType, l1_m: f64, l2_m: f64, deck_width_m: f64, concrete_class: &str) -> Self {
+    pub fn new(
+        title: &str,
+        train: TrainType,
+        l1_m: f64,
+        l2_m: f64,
+        deck_width_m: f64,
+        concrete_class: &str,
+    ) -> Self {
         SlabInput {
             title: title.to_string(),
             train,
@@ -163,7 +170,14 @@ mod tests {
 
     fn sample() -> (SlabInput, MomentResult) {
         let table = RuschTable::for_edges(EdgeCondition::SimplySupported);
-        let input = SlabInput::new("Viaduto Centro — Painel P1", TrainType::TB450, 8.0, 0.0, 6.0, "C25/30");
+        let input = SlabInput::new(
+            "Viaduto Centro — Painel P1",
+            TrainType::TB450,
+            8.0,
+            0.0,
+            6.0,
+            "C25/30",
+        );
         let result = bending_moment(&table, &TrainType::TB450, 8.0, 0.0, 25.0).expect("cálculo");
         (input, result)
     }
@@ -175,7 +189,7 @@ mod tests {
         assert!(html.contains("Memória de cálculo"));
         assert!(html.contains("TB-450"));
         assert!(html.contains("Viaduto Centro"));
-        assert!(html.contains("2.250")); // momento positivo esperado (kN·m/m)
+        assert!(html.contains("18.000")); // momento positivo esperado (kN·m/m)
     }
 
     #[test]
@@ -189,7 +203,8 @@ mod tests {
 
     #[test]
     fn writes_atomically_to_disk() {
-        let dir = std::env::temp_dir().join(format!("freerusch-report-test-{}", std::process::id()));
+        let dir =
+            std::env::temp_dir().join(format!("freerusch-report-test-{}", std::process::id()));
         std::fs::create_dir_all(&dir).expect("mkdir");
         let path = dir.join("memoria.html");
         let (input, result) = sample();

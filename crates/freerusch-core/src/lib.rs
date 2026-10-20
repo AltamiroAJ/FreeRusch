@@ -118,13 +118,15 @@ impl RuschTable {
     /// Retorna `(alfa, beta)`; `beta` é `None` quando a configuração não tem
     /// apoio interno. Erro [`RuschError::RatioOutOfRange`] se `ratio` ultrapassar
     /// o intervalo da linha em mais de `1e-9`.
-    pub fn coefficients_at(&self, spans: usize, ratio: f64) -> Result<(f64, Option<f64>), RuschError> {
-        let row = self
-            .row(spans)
-            .ok_or(RuschError::InvalidDimension {
-                name: "spans",
-                value: spans as f64,
-            })?;
+    pub fn coefficients_at(
+        &self,
+        spans: usize,
+        ratio: f64,
+    ) -> Result<(f64, Option<f64>), RuschError> {
+        let row = self.row(spans).ok_or(RuschError::InvalidDimension {
+            name: "spans",
+            value: spans as f64,
+        })?;
         let alpha = interpolate_row(&row.alpha, ratio)?;
         let beta = if row.beta.is_empty() {
             None
@@ -242,10 +244,7 @@ fn interpolate_row(points: &[RuschPoint], ratio: f64) -> Result<f64, RuschError>
             return Ok(a.coeff + t * (b.coeff - a.coeff));
         }
     }
-    Ok(points
-        .last()
-        .map(|p| p.coeff)
-        .unwrap_or(0.0))
+    Ok(points.last().map(|p| p.coeff).unwrap_or(0.0))
 }
 
 /// Trem-tipo da NBR 7188:2013 (ABNT NBR 7188:2013, tabela de trens-tipo).
@@ -333,7 +332,10 @@ pub fn design_moment(
     concrete_class_strength_mpa: f64,
 ) -> Result<MomentResult, RuschError> {
     if !(l1.is_finite() && l1 > 0.0) {
-        return Err(RuschError::InvalidDimension { name: "l1", value: l1 });
+        return Err(RuschError::InvalidDimension {
+            name: "l1",
+            value: l1,
+        });
     }
     if !(deck_width_m.is_finite() && deck_width_m > 0.0) {
         return Err(RuschError::InvalidDimension {
@@ -349,10 +351,11 @@ pub fn design_moment(
     let ratio = if l2 == 0.0 { 0.0 } else { l2 / l1 };
     // Para painel isolado usamos o menor ponto da grade (alfa mínimo clássico).
     let ratio_for_lookup = if l2 == 0.0 { 0.5 } else { ratio };
-    if ratio_for_lookup.is_nan()
-        || ratio_for_lookup < 0.0
-    {
-        return Err(RuschError::InvalidDimension { name: "l2", value: l2 });
+    if ratio_for_lookup.is_nan() || ratio_for_lookup < 0.0 {
+        return Err(RuschError::InvalidDimension {
+            name: "l2",
+            value: l2,
+        });
     }
     let (alpha, beta) = table.coefficients_at(spans, ratio_for_lookup)?;
     let n_lanes = ((deck_width_m / train.lane_width_m()).floor().max(1.0)) as usize;
