@@ -22,17 +22,19 @@ bibliotecas compartilhadas da família consumidas do repositório
 freerusch/
 ├── Cargo.toml                  # workspace + [workspace.dependencies] (craft-* por git rev)
 ├── rust-toolchain.toml         # canal stable
+├── docs/ROADMAP.md             # roadmap, critérios de aceite e bloqueios
+├── CHANGELOG.md                # histórico de mudanças (Keep a Changelog)
 ├── .github/workflows/ci.yml    # fmt · clippy · test · build (Linux/Windows/macOS)
 ├── crates/
 │   ├── freerusch-core/         # motor de cálculo PURO (sem UI):
 │   │                           #  - RuschTable / EdgeCondition / interpolação linear
-│   │                           #  - TrainType (TB-450 / TB-240, NBR 7188:2013)
-│   │                           #  - bending_moment / design_moment / moment_diagram
-│   └── freerusch-report/       # memória de cálculo em HTML:
-│                               #  - render_html (escape seguro de entradas)
-│                               #  - diagram_svg (diagrama de momentos inline)
-│                               #  - write_report via craft-atomic (escrita atômica)
-│   ├── freerusch-project/      # arquivo de projeto `.frus` (JSON versionado):
+│   │                           #  - TrainType / VehicleGeometry (NBR 7188:2013)
+│   │                           #  - design_moment / moment_diagram / MomentDiagram
+│   ├── freerusch-report/       # memória de cálculo em HTML:
+│   │                           #  - render_html (escape seguro de entradas)
+│   │                           #  - diagram_svg (diagrama de momentos inline)
+│   │                           #  - write_report via craft-atomic (escrita atômica)
+│   └── freerusch-project/      # arquivo de projeto `.frus` (JSON versionado):
 │                               #  - Project, save/load com validação prévia
 └── apps/
     └── freerusch/              # binário GUI (eframe/egui + craft-ui/craft-settings)
@@ -75,15 +77,19 @@ let m = bending_moment(&table, &TrainType::TB450, /*l1=*/ 8.0, /*l2=*/ 0.0, /*q=
 println!("M⁺ = {:.2} kN·m/m (α = {:.4})", m.max_positive, m.alpha);
 ```
 
-## Status do domínio (roadmap)
+## Roadmap
 
-Este repositório está na **Fase 2**:
+O planejamento completo — itens, critérios de aceite, dependências e bloqueios —
+está em [`docs/ROADMAP.md`](docs/ROADMAP.md). O histórico de mudanças fica no
+[`CHANGELOG.md`](CHANGELOG.md).
 
-- [x] Workspace, CI multiplataforma, motor mínimo com testes.
-- [ ] Tabelas de Rüsch completas (todos os vínculos e faixas l₂/l₁).
-- [ ] Trens-tipo NBR 7188:2013 com roda-paleta, `b_min` e fator θ por faixa de influência.
-- [x] Diagramas de momento vetoriais (SVG) na memória de cálculo.
-- [x] Arquivo de projeto (`.frus`) salvo atomicamente via `craft-atomic`.
+Resumo:
+
+- **v0.1.0** (em andamento) — domínio confiável: tabelas de Rüsch homologadas,
+  coeficiente de impacto, cargas de passeio e memória de cálculo declarando as
+  próprias hipóteses.
+- **v0.2.0** — armadura e ELU (NBR 6118), combinações de ações, `.frus` v2.
+- **v1.0.0** — consolidação: carga de pneu, i18n pt-BR/en-US, release com checksums.
 
 > **Aviso — resultados preliminares.** Os coeficientes de Rüsch embutidos são
 > uma base didática coerente com a formulação clássica, **não** as tabelas
