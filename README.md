@@ -30,7 +30,10 @@ freerusch/
 │   │                           #  - bending_moment / design_moment / moment_diagram
 │   └── freerusch-report/       # memória de cálculo em HTML:
 │                               #  - render_html (escape seguro de entradas)
+│                               #  - diagram_svg (diagrama de momentos inline)
 │                               #  - write_report via craft-atomic (escrita atômica)
+│   ├── freerusch-project/      # arquivo de projeto `.frus` (JSON versionado):
+│                               #  - Project, save/load com validação prévia
 └── apps/
     └── freerusch/              # binário GUI (eframe/egui + craft-ui/craft-settings)
 ```
@@ -53,6 +56,12 @@ cargo run -p freerusch          # abre a janela "FreeRusch"
 cargo test --workspace          # testes do motor de cálculo e do relatório
 ```
 
+A janela tem três abas: **Inputs** (dados do painel), **Results**
+(coeficientes, momentos e diagrama) e **Report** (memória de cálculo).
+O projeto completo é gravado em `.frus` (JSON versionado, escrita atômica via
+`craft-atomic`) e a memória de cálculo é exportada em HTML autocontido, com o
+diagrama de momentos embutido como SVG — sem arquivos externos nem JavaScript.
+
 Defina `FREERUSCH_NO_PREFS=1` para rodar sem criar `config.toml` no perfil do
 sistema (útil em CI/containers).
 
@@ -68,13 +77,13 @@ println!("M⁺ = {:.2} kN·m/m (α = {:.4})", m.max_positive, m.alpha);
 
 ## Status do domínio (roadmap)
 
-Este repositório está no **esqueleto inicial** (Fase 1):
+Este repositório está na **Fase 2**:
 
 - [x] Workspace, CI multiplataforma, motor mínimo com testes.
 - [ ] Tabelas de Rüsch completas (todos os vínculos e faixas l₂/l₁).
 - [ ] Trens-tipo NBR 7188:2013 com roda-paleta, `b_min` e fator θ por faixa de influência.
-- [ ] Diagramas de momento vetoriais (SVG) na memória de cálculo.
-- [ ] Arquivo de projeto (`.frusch`) salvo atomicamente via `craft-atomic`.
+- [x] Diagramas de momento vetoriais (SVG) na memória de cálculo.
+- [x] Arquivo de projeto (`.frus`) salvo atomicamente via `craft-atomic`.
 
 ## Licença
 
