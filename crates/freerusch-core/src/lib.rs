@@ -137,6 +137,17 @@ impl RuschTable {
     }
 }
 
+/// Sinaliza que os coeficientes embutidos ainda **não** são as tabelas
+/// homologadas de Rüsch.
+///
+/// A base atual é didática e coerente com a formulação clássica (`alfa → 1/8`
+/// no painel isolado, `|beta| → 1/12` no limite igualmente contínuo), mas as
+/// tabelas completas (Helsper/Kerdahl/Blodner, formato DIN/IBSW) ainda não
+/// foram transcritas de uma fonte verificada. Enquanto este valor for `true`,
+/// a GUI e a memória de cálculo devem exibir o aviso de resultados não
+/// homologados.
+pub const RUSCH_TABLES_PRELIMINARY: bool = true;
+
 /// Tabela simplificada para painéis com apoios externos biapoiados.
 ///
 /// Os valores são uma base didática coerente com a formulação clássica de
@@ -258,10 +269,14 @@ pub enum TrainType {
 
 impl TrainType {
     /// Intensidade da carga uniformemente distribuída `p` do trem-tipo (kN/m²).
+    ///
+    /// NBR 7188:2013 — carga de multidão na pista, atuando em conjunto com o
+    /// veículo-tipo na região externa a ele: **5,0 kN/m²** para o TB-450 e
+    /// **4,0 kN/m²** para o TB-240.
     pub fn ud_load_knm2(self) -> f64 {
         match self {
-            TrainType::TB450 => 4.5,
-            TrainType::TB240 => 2.4,
+            TrainType::TB450 => 5.0,
+            TrainType::TB240 => 4.0,
         }
     }
 
@@ -554,13 +569,27 @@ mod tests {
     }
 
     #[test]
+    fn uniform_load_matches_nbr7188() {
+        // NBR 7188:2013 — carga de multidão na pista, atuando em conjunto com o
+        // trem-tipo na região externa ao veículo.
+        assert!(
+            (TrainType::TB450.ud_load_knm2() - 5.0).abs() < 1e-9,
+            "TB-450: 5,0 kN/m²"
+        );
+        assert!(
+            (TrainType::TB240.ud_load_knm2() - 4.0).abs() < 1e-9,
+            "TB-240: 4,0 kN/m²"
+        );
+    }
+
+    #[test]
     fn bending_moment_is_alpha_p_l2() {
-        // Painel isolado: alfa = 1/8; p_eff = 4,5 kN/m² × min(3,0; b_min/n)/b.
-        // Com b = 6,0 m e 2 faixas: p_linha = 4,5 × 3,0 = 13,5 kN/m; por metro
-        // de largura: 13,5 / 6,0 = 2,25 kN/m².
+        // Painel isolado: alfa = 1/8; p_eff = 5,0 kN/m² × min(3,0; b_min/n)/b.
+        // Com b = 6,0 m e 2 faixas: p_linha = 5,0 × 3,0 = 15,0 kN/m; por metro
+        // de largura: 15,0 / 6,0 = 2,50 kN/m².
         let table = RuschTable::for_edges(EdgeCondition::SimplySupported);
         let m = bending_moment(&table, &TrainType::TB450, 8.0, 0.0, 25.0).expect("cálculo");
-        let expected = 0.125 * 2.25 * 8.0 * 8.0; // = 18,0 kN·m/m
+        let expected = 0.125 * 2.5 * 8.0 * 8.0; // = 20,0 kN·m/m
         assert!((m.max_positive - expected).abs() < 1e-9);
         assert_eq!(m.max_negative, 0.0);
     }

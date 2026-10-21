@@ -482,6 +482,12 @@ impl FreeruschApp {
             ui.label("Ainda sem resultados — preencha a aba Inputs e clique em Calcular.");
             return;
         };
+        if freerusch_core::RUSCH_TABLES_PRELIMINARY {
+            ui.colored_label(
+                egui::Color32::from_rgb(160, 60, 60),
+                "Tabelas de Rüsch preliminares — resultados não homologados para projeto executivo.",
+            );
+        }
         egui::Grid::new("freerusch-results")
             .num_columns(2)
             .striped(true)

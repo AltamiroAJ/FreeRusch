@@ -85,6 +85,15 @@ Este repositório está na **Fase 2**:
 - [x] Diagramas de momento vetoriais (SVG) na memória de cálculo.
 - [x] Arquivo de projeto (`.frus`) salvo atomicamente via `craft-atomic`.
 
+> **Aviso — resultados preliminares.** Os coeficientes de Rüsch embutidos são
+> uma base didática coerente com a formulação clássica, **não** as tabelas
+> homologadas de Helsper/Kerdahl/Blodner. Enquanto
+> `freerusch_core::RUSCH_TABLES_PRELIMINARY` for `true`, a GUI e a memória de
+> cálculo exibem esse aviso. Não use para projeto executivo.
+>
+> As cargas de multidão seguem a NBR 7188:2013: **5,0 kN/m²** (TB-450) e
+> **4,0 kN/m²** (TB-240), atuando em conjunto com o veículo-tipo.
+
 ## Licença
 
 MIT OR Apache-2.0 (ver `LICENSE`).

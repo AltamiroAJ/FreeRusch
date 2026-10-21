@@ -148,6 +148,14 @@ pub fn render_html(input: &SlabInput, result: &MomentResult) -> String {
         .beta
         .map(|b| format!("{b:.4}"))
         .unwrap_or_else(|| "—".to_string());
+    // Aviso obrigatório enquanto as tabelas de Rüsch não forem homologadas.
+    let warning = if freerusch_core::RUSCH_TABLES_PRELIMINARY {
+        "<p class=\"warn\">Resultados preliminares: as tabelas completas de Rüsch \
+         ainda não foram transcritas de fonte verificada. Não use para projeto \
+         executivo.</p>"
+    } else {
+        ""
+    };
     // O diagrama é derivado do próprio resultado: a memória de cálculo não
     // depende de o chamador (GUI) fornecer os pontos.
     let diagrama = {
@@ -172,6 +180,7 @@ table {{ border-collapse: collapse; margin-top: 1em; }}
 th, td {{ border: 1px solid #999; padding: 4px 10px; text-align: right; }}
 th {{ background: #eee; }}
 .neg {{ color: #a00; }}
+.warn {{ color: #8a1f1f; border: 1px solid #e0b4b4; background: #fdf2f2; padding: 8px; }}
 figure {{ margin: 1em 0; }}
 footer {{ margin-top: 2em; font-size: 0.85em; color: #666; }}
 </style>
@@ -179,6 +188,7 @@ footer {{ margin-top: 2em; font-size: 0.85em; color: #666; }}
 <body>
 <h1>FreeRusch — Memória de cálculo (método de Rüsch)</h1>
 <p>{title}</p>
+{warning}
 <h2>Premissas</h2>
 <table>
 <tr><th>Parâmetro</th><th>Valor</th></tr>
@@ -217,6 +227,7 @@ Valores de tabela sujeitos à homologação final das tabelas completas.</footer
         mpos = result.max_positive,
         mneg = result.max_negative,
         diagrama = diagrama,
+        warning = warning,
     )
 }
 
@@ -266,7 +277,19 @@ mod tests {
         assert!(html.contains("Memória de cálculo"));
         assert!(html.contains("TB-450"));
         assert!(html.contains("Viaduto Centro"));
-        assert!(html.contains("18.000")); // momento positivo esperado (kN·m/m)
+        assert!(html.contains("20.000")); // momento positivo esperado (kN·m/m)
+    }
+
+    #[test]
+    fn html_warns_when_tables_are_preliminary() {
+        let (input, result) = sample();
+        let html = render_html(&input, &result);
+        if freerusch_core::RUSCH_TABLES_PRELIMINARY {
+            assert!(html.contains("Resultados preliminares"));
+            assert!(html.contains("Não use para projeto executivo"));
+        } else {
+            assert!(!html.contains("Resultados preliminares"));
+        }
     }
 
     #[test]
