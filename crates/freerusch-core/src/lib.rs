@@ -409,6 +409,55 @@ pub fn moment_diagram(result: &MomentResult, l1: f64, samples: usize) -> Vec<(f6
     out
 }
 
+/// Diagrama de momentos fletores discretizado ao longo de um vão.
+///
+/// É apenas dado numérico: a renderização (GUI com [`egui`] ou SVG na memória
+/// de cálculo) é responsabilidade das camadas de apresentação. Os pontos vêm
+/// ordenados por `x` crescente.
+#[derive(Debug, Clone, PartialEq)]
+pub struct MomentDiagram {
+    /// Pares `(x, M)` com `x` em metros e `M` em kN·m/m.
+    pub points: Vec<(f64, f64)>,
+}
+
+impl MomentDiagram {
+    /// Constrói o diagrama de um [`MomentResult`] ao longo do vão `l1`, com
+    /// `samples` pontos (mínimo de 2).
+    pub fn for_result(result: &MomentResult, l1: f64, samples: usize) -> Self {
+        MomentDiagram {
+            points: moment_diagram(result, l1, samples),
+        }
+    }
+
+    /// Maior momento positivo do diagrama (kN·m/m); `0.0` se vazio.
+    pub fn max_moment(&self) -> f64 {
+        self.points
+            .iter()
+            .map(|&(_, m)| m)
+            .reduce(f64::max)
+            .unwrap_or(0.0)
+    }
+
+    /// Menor momento (tipicamente negativo nos apoios, kN·m/m); `0.0` se vazio.
+    pub fn min_moment(&self) -> f64 {
+        self.points
+            .iter()
+            .map(|&(_, m)| m)
+            .reduce(f64::min)
+            .unwrap_or(0.0)
+    }
+
+    /// Maior valor absoluto de momento, usado para escalar o desenho; `0.0` se
+    /// vazio. É o valor que define a amplitude vertical do diagrama.
+    pub fn max_abs_moment(&self) -> f64 {
+        self.points
+            .iter()
+            .map(|&(_, m)| m.abs())
+            .reduce(f64::max)
+            .unwrap_or(0.0)
+    }
+}
+
 /// Classes de concreto usuais da NBR 6118 e suas resistências `f_ck` (MPa).
 pub fn concrete_characteristic_strength(class_name: &str) -> Result<f64, RuschError> {
     let map = [
@@ -491,5 +540,24 @@ mod tests {
         assert!((d[0].1 - m.max_negative).abs() < 1e-9);
         assert!((d[5].1 - m.max_positive).abs() < 1e-9);
         assert!((d[10].1 - m.max_negative).abs() < 1e-9);
+    }
+
+    #[test]
+    fn diagram_extremes_match_moment_result() {
+        let table = RuschTable::for_edges(EdgeCondition::SimplySupported);
+        let m = design_moment(&table, TrainType::TB450, 2, 8.0, 8.0, 6.0, 25.0).expect("cálculo");
+        let d = MomentDiagram::for_result(&m, 8.0, 21);
+        assert_eq!(d.points.len(), 21);
+        assert!((d.max_moment() - m.max_positive).abs() < 1e-9);
+        assert!((d.min_moment() - m.max_negative).abs() < 1e-9);
+        assert!((d.max_abs_moment() - m.max_positive.max(m.max_negative.abs())).abs() < 1e-9);
+    }
+
+    #[test]
+    fn empty_diagram_reports_zero_extremes() {
+        let d = MomentDiagram { points: Vec::new() };
+        assert_eq!(d.max_abs_moment(), 0.0);
+        assert_eq!(d.min_moment(), 0.0);
+        assert_eq!(d.max_moment(), 0.0);
     }
 }
