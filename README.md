@@ -24,6 +24,7 @@ freerusch/
 ├── rust-toolchain.toml         # canal stable
 ├── docs/ROADMAP.md             # roadmap, critérios de aceite e bloqueios
 ├── CHANGELOG.md                # histórico de mudanças (Keep a Changelog)
+├── tools/                      # extrator das tabelas de Rüsch para o core
 ├── .github/workflows/ci.yml    # fmt · clippy · test · build (Linux/Windows/macOS)
 ├── crates/
 │   ├── freerusch-core/         # motor de cálculo PURO (sem UI):
@@ -76,6 +77,22 @@ let table = RuschTable::for_edges(EdgeCondition::SimplySupported);
 let m = bending_moment(&table, &TrainType::TB450, /*l1=*/ 8.0, /*l2=*/ 0.0, /*q=*/ 25.0)?;
 println!("M⁺ = {:.2} kN·m/m (α = {:.4})", m.max_positive, m.alpha);
 ```
+
+As tabelas de Rüsch extraídas do workbook de referência podem ser consultadas
+diretamente, por número de tabela:
+
+```rust
+use freerusch_core::RuschTableData;
+
+// Tabela Nr 1.1, Mxm no centro da laje, t/a = 0,125, lx/a = 2,0
+let table = RuschTableData::find(1, Some(1)).expect("tabela Nr 1.1");
+let column = table.column("Mxm in Plattenmitte", "L").expect("coeficiente");
+let i = table.row_index(2.0).expect("lx/a = 2,0");
+assert_eq!(column.values[i], Some(0.52));
+```
+
+> Apenas 5 das 186 tabelas estão embarcadas até aqui; o recorte e o processo de
+> extração estão descritos em [`docs/ROADMAP.md`](docs/ROADMAP.md#r1--em-andamento-fonte-obtida).
 
 ## Roadmap
 

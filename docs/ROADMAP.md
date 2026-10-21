@@ -34,6 +34,7 @@ Prefixos de ID: `R` bloqueio/risco · `D` domínio de engenharia · `I` infraest
 | Projeto | `.frus` JSON versionado, escrita atômica |
 | Testes | 30 (13 core · 9 project · 7 report · 1 doctest) |
 | CI | fmt · clippy `-D warnings` · test · build em Linux/Windows/macOS |
+| Tabelas de Rüsch | 5 de 186 embarcadas (workbook do IME) — ver [R1](#r1--em-andamento-fonte-obtida) |
 | Confiabilidade do resultado | **preliminar** — ver aviso abaixo |
 
 > **Aviso.** Os coeficientes de Rüsch embutidos são uma base didática, não as
@@ -53,12 +54,42 @@ e a memória de cálculo declarando suas próprias hipóteses.
 
 | ID | Item | Precisa de |
 |---|---|---|
-| **R1** | Transcrever as tabelas de Rüsch homologadas (Helsper/Kerdahl/Blodner, formato DIN/IBSW) para todos os vínculos e faixas l₂/l₁, com teste conferindo nó a nó | PDF/scan das tabelas de fonte confiável |
 | **R2** | Regra normativa de largura efetiva `b_min`/`b_max` e do fator de distribuição transversal θ por faixa de influência | cláusula da NBR 7188:2013 |
 | **R3** | Conferir a lista de recursos do T-Rüsch contra este roadmap | página do fornecedor — na última verificação retornou HTTP 500 |
 
-**Consequência:** v0.1.0 **não é publicado** com coeficientes preliminares. Se R1
-não fechar, a alternativa é um `0.1.0-pre` explicitamente marcado como não
+### R1 — em andamento (fonte obtida)
+
+A fonte das tabelas foi obtida: `Tabelas Rusch Final - IME.xls`, com **186 tabelas**
+(DIN/IBSW) em 188 planilhas, 13 linhas de `lx/a` (0,5 a 10) e 29 layouts de coluna
+distintos. As resultantes vão de `Mxm`/`Mym` (centro da laje) a `Mxr`/`Myr`
+(meio da borda livre), `Mxe`/`Mye` (meio da borda) e `Qx` (cortante).
+
+Pipeline implementado:
+
+```
+.xls  --(LibreOffice)-->  .xlsx  --tools/extract_rusch_tables.py-->
+      crates/freerusch-core/data/rusch_tables.json   (auditoria)
+      crates/freerusch-core/src/rusch_data.rs        (@generated, compilado)
+```
+
+Decisões registradas: a fonte **não** é versionada (o `.xls` tem SHA-256 gravado no
+arquivo gerado); endereçamento por **número da tabela** (`Nr N.M`), já que não há
+legenda; rótulos de coluna preservados **crus**; célula `-` vira `None`
+(ausência), nunca `0,0`.
+
+**Estado:** 5 de 186 tabelas embarcadas e testadas — Nr 1.1, 4.1, 16.1 (momentos,
+layouts de 2 a 4 resultantes) e Nr 99 (cortante) e Nr 27.1 (parâmetro `l/a` e
+rótulos com prefixo). 1 092 valores conferidos contra células da planilha.
+
+Falta:
+
+- ampliar o recorte às 186 tabelas (o extrator é genérico; falta revisar os 29 layouts);
+- decidir a semântica dos prefixos de rótulo `¾`, `(+)`, `-`, `_`;
+- resolver duas particularidades da fonte: `Nr 2.2` (região de dados deslocada) e
+  `Nr 27.1/27.2` (usam `l/a` em vez de `ly/lx`);
+
+**Consequência:** v0.1.0 **não é publicado** com coeficientes preliminares. Enquanto
+R1 não fechar, a alternativa é um `0.1.0-pre` explicitamente marcado como não
 utilizável em projeto.
 
 ## Domínio de engenharia
@@ -158,12 +189,12 @@ Origem: [phase-4-consolidation-v1](prompts/phase-4-consolidation-v1.md).
 
 | ID | Bloqueio | O que destrava |
 |---|---|---|
-| R1 | Tabelas de Rüsch homologadas | PDF/scan das tabelas, ou indicação de referência pública |
 | R2 | `b_min`/`b_max` e θ | trecho da NBR 7188:2013 |
 | R3 | Lista de recursos do T-Rüsch | página do fornecedor acessível, ou sua descrição |
+| R1 | Semântica dos prefixos `¾`/`(+)`/`-`/`_` nos rótulos das tabelas | confirmação no documento original (não bloqueia a extração) |
 
-Enquanto R1 e R2 estiverem abertos, o restante da v0.1.0 pode avançar — mas o
-release não fecha.
+Enquanto R2 estiver aberto, o restante da v0.1.0 pode avançar — mas o release não
+fecha.
 
 # Histórico de fases
 
