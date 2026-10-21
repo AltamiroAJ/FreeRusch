@@ -13,6 +13,7 @@ path = "src/main.rs"
 [dependencies]
 freerusch-core   = { workspace = true }
 freerusch-report = { workspace = true }
+freerusch-project = { workspace = true }
 # `craft-core` não existe (ainda) no craft-libs — o núcleo GUI da família é o
 # próprio `craft-ui` sobre `egui`/`eframe`. A dependência fica registrada em
 # [workspace.dependencies] para quando a lib for publicada; ver PR.
@@ -22,4 +23,4 @@ craft-atomic     = { workspace = true }
 craft-print      = { workspace = true }
 eframe           = { workspace = true }
 egui             = { workspace = true }
-serde            = { version = "1", features = ["derive"] }
+serde            = { workspace = true }
