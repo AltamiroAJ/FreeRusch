@@ -3,6 +3,7 @@ resolver = "3"
 members = [
     "crates/freerusch-core",
     "crates/freerusch-report",
+    "crates/freerusch-project",
     "apps/freerusch",
 ]
 
@@ -24,6 +25,7 @@ craft-print    = { git = "https://github.com/storytold/craft-libs", rev = "ae2f7
 
 freerusch-core   = { path = "crates/freerusch-core" }
 freerusch-report = { path = "crates/freerusch-report" }
+freerusch-project = { path = "crates/freerusch-project" }
 
 eframe = { version = "0.36", default-features = false, features = [
     "glow",
@@ -32,6 +34,8 @@ eframe = { version = "0.36", default-features = false, features = [
     "x11",
 ] }
 egui = "0.36"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
 thiserror = "2"
 
 [profile.release]
