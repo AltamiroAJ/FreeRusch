@@ -277,6 +277,61 @@ impl TrainType {
             TrainType::TB240 => "TB-240",
         }
     }
+
+    /// Geometria do veículo conforme a NBR 7188:2013.
+    ///
+    /// Os dois trens-tipo usam o mesmo chassi: três eixos (um dianteiro e dois
+    /// traseiros), 4,00 m do dianteiro ao primeiro traseiro, 1,25 m entre os
+    /// traseiros e 3,00 m de faixa por veículo. O que muda é a carga por eixo:
+    /// TB-450 → 100 + 175 + 175 kN (450 kN); TB-240 → 100 + 70 + 70 kN (240 kN).
+    pub fn geometry(self) -> VehicleGeometry {
+        VehicleGeometry {
+            axles_kn: match self {
+                TrainType::TB450 => vec![100.0, 175.0, 175.0],
+                TrainType::TB240 => vec![100.0, 70.0, 70.0],
+            },
+            front_to_rear_m: 4.0,
+            rear_spacing_m: 1.25,
+            lane_width_m: self.lane_width_m(),
+        }
+    }
+}
+
+/// Geometria do veículo de um trem-tipo da NBR 7188:2013.
+///
+/// Descreve a disposição dos eixos e a faixa ocupada, sem pressupor como as
+/// cargas se distribuem na laje: essa etapa (largura efetiva `b_min`/`b_max` e
+/// fator de distribuição transversal) é aplicada por quem consome a geometria.
+#[derive(Debug, Clone, PartialEq)]
+pub struct VehicleGeometry {
+    /// Cargas por eixo (kN), na ordem dianteiro → traseiros.
+    pub axles_kn: Vec<f64>,
+    /// Distância entre o eixo dianteiro e o primeiro eixo traseiro (m).
+    pub front_to_rear_m: f64,
+    /// Distância entre os dois eixos traseiros (m).
+    pub rear_spacing_m: f64,
+    /// Largura da faixa ocupada por um veículo (m).
+    pub lane_width_m: f64,
+}
+
+impl VehicleGeometry {
+    /// Carga total do veículo (kN), soma das cargas por eixo.
+    pub fn total_kn(&self) -> f64 {
+        self.axles_kn.iter().sum()
+    }
+
+    /// Número de faixas que cabem na largura útil do tabuleiro.
+    ///
+    /// Regra da NBR 7188: `floor(b / 3,00)`, no mínimo uma faixa. Larguras
+    /// inválidas (não finitas ou não positivas) também resultam em uma faixa,
+    /// em vez de zero faixas carregadas.
+    pub fn lane_count(&self, deck_width_m: f64) -> usize {
+        if !deck_width_m.is_finite() || deck_width_m <= 0.0 {
+            return 1;
+        }
+        let lanes = (deck_width_m / self.lane_width_m).floor();
+        if lanes < 1.0 { 1 } else { lanes as usize }
+    }
 }
 
 /// Carga total por faixa de rodagem (kN/m) sobre a laje, já considerando a
@@ -559,5 +614,42 @@ mod tests {
         assert_eq!(d.max_abs_moment(), 0.0);
         assert_eq!(d.min_moment(), 0.0);
         assert_eq!(d.max_moment(), 0.0);
+    }
+
+    #[test]
+    fn tb450_geometry_matches_nbr7188() {
+        let geometry = TrainType::TB450.geometry();
+        assert_eq!(geometry.axles_kn, vec![100.0, 175.0, 175.0]);
+        assert!((geometry.total_kn() - 450.0).abs() < 1e-9);
+        assert!((geometry.front_to_rear_m - 4.0).abs() < 1e-9);
+        assert!((geometry.rear_spacing_m - 1.25).abs() < 1e-9);
+        assert!((geometry.lane_width_m - 3.0).abs() < 1e-9);
+    }
+
+    #[test]
+    fn tb240_geometry_matches_nbr7188() {
+        let geometry = TrainType::TB240.geometry();
+        assert_eq!(geometry.axles_kn, vec![100.0, 70.0, 70.0]);
+        assert!((geometry.total_kn() - 240.0).abs() < 1e-9);
+        assert!((geometry.front_to_rear_m - 4.0).abs() < 1e-9);
+        assert!((geometry.rear_spacing_m - 1.25).abs() < 1e-9);
+    }
+
+    #[test]
+    fn lane_count_floors_by_lane_width() {
+        let geometry = TrainType::TB450.geometry();
+        assert_eq!(geometry.lane_count(2.5), 1, "nunca menos de uma faixa");
+        assert_eq!(geometry.lane_count(3.0), 1);
+        assert_eq!(geometry.lane_count(6.0), 2);
+        assert_eq!(geometry.lane_count(8.9), 2);
+        assert_eq!(geometry.lane_count(9.0), 3);
+    }
+
+    #[test]
+    fn lane_count_tolerates_invalid_width() {
+        let geometry = TrainType::TB450.geometry();
+        assert_eq!(geometry.lane_count(f64::NAN), 1);
+        assert_eq!(geometry.lane_count(-4.0), 1);
+        assert_eq!(geometry.lane_count(0.0), 1);
     }
 }
