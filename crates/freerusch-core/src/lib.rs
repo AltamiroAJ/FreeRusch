@@ -28,6 +28,84 @@
 
 use thiserror::Error;
 
+pub mod rusch_data;
+
+/// Natureza de um coeficiente numa tabela de Rüsch.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum RuschColumnKind {
+    /// Coeficiente `L`: parcela do trem-tipo, em função de `t/a`.
+    Wheel,
+    /// Coeficiente `p`/`p'`: parcela da carga uniforme, válido para todo `t/a`.
+    Uniform,
+}
+
+/// Uma coluna de coeficientes de uma tabela de Rüsch.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct RuschColumn {
+    /// Rótulo do grupo, preservado cru da planilha (ex.: `"Mxm in Plattenmitte"`).
+    pub group: &'static str,
+    /// Letra do coeficiente: `"L"`, `"p"` ou `"p'"`.
+    pub letter: &'static str,
+    /// Relação `t/a` da coluna; `None` quando vale para todo `t/a`.
+    pub ta: Option<f64>,
+    /// Natureza do coeficiente.
+    pub kind: RuschColumnKind,
+    /// Valores ao longo de [`RuschTableData::rows`].
+    ///
+    /// `None` representa a célula `-` da planilha: o coeficiente não se aplica.
+    /// Não é zero — é ausência declarada.
+    pub values: &'static [Option<f64>],
+}
+
+/// Uma tabela de Rüsch extraída do workbook de referência do IME.
+///
+/// Os coeficientes são dados numéricos crus, sem interpretação de sinal: os
+/// prefixos dos rótulos (`¾`, `(+)`, `-`, `_`) ainda não foram confirmados
+/// contra a fonte original e por isso são preservados como texto.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct RuschTableData {
+    /// Nome da planilha de origem (ex.: `"Nr 65.1"`).
+    pub sheet: &'static str,
+    /// Número da tabela.
+    pub number: u32,
+    /// Variante da tabela (o `.1`/`.2` do nome), quando existir.
+    pub variant: Option<u8>,
+    /// Parâmetro do cabeçalho: `"ly/lx"` ou `"l/a"`.
+    pub param: &'static str,
+    /// Valor do parâmetro como está no cabeçalho (ex.: `"2,25"`, `"∞"`).
+    pub ratio_raw: &'static str,
+    /// `true` quando o parâmetro é infinito.
+    pub ratio_is_infinite: bool,
+    /// Eixo das linhas (`lx/a`).
+    pub rows: &'static [f64],
+    /// Colunas de coeficientes.
+    pub columns: &'static [RuschColumn],
+}
+
+impl RuschTableData {
+    /// Localiza uma tabela pelo número e variante.
+    #[must_use]
+    pub fn find(number: u32, variant: Option<u8>) -> Option<&'static Self> {
+        rusch_data::TABLES
+            .iter()
+            .find(|t| t.number == number && t.variant == variant)
+    }
+
+    /// Índice da linha cujo `lx/a` é exatamente o valor pedido.
+    #[must_use]
+    pub fn row_index(&self, lx_over_a: f64) -> Option<usize> {
+        self.rows.iter().position(|r| (r - lx_over_a).abs() < 1e-9)
+    }
+
+    /// Primeira coluna que casa com grupo e letra.
+    #[must_use]
+    pub fn column(&self, group: &str, letter: &str) -> Option<&'static RuschColumn> {
+        self.columns
+            .iter()
+            .find(|c| c.group == group && c.letter == letter)
+    }
+}
+
 /// Erros do motor de cálculo Rüsch.
 #[derive(Debug, Clone, PartialEq, Error)]
 pub enum RuschError {
@@ -680,5 +758,69 @@ mod tests {
         assert_eq!(geometry.lane_count(f64::NAN), 1);
         assert_eq!(geometry.lane_count(-4.0), 1);
         assert_eq!(geometry.lane_count(0.0), 1);
+    }
+
+    #[test]
+    fn rusch_data_covers_the_extracted_tables() {
+        // Recorte inicial: Nr 1.1, 4.1, 16.1, 99 e 27.1.
+        assert_eq!(rusch_data::TABLES.len(), 5);
+        for table in rusch_data::TABLES {
+            assert_eq!(table.rows.len(), 13, "{}", table.sheet);
+            assert!(!table.columns.is_empty(), "{}", table.sheet);
+            for column in table.columns {
+                assert_eq!(
+                    column.values.len(),
+                    table.rows.len(),
+                    "{} / {}",
+                    table.sheet,
+                    column.group
+                );
+            }
+        }
+    }
+
+    #[test]
+    fn rusch_data_matches_spreadsheet_cells() {
+        // Planilha "Nr 1.1", coluna "Mxm in Plattenmitte" com t/a = 0,125:
+        // C12 = 0,185 (lx/a = 0,5) e C24 = 1,25 (lx/a = 10).
+        let table = RuschTableData::find(1, Some(1)).expect("tabela Nr 1.1");
+        assert_eq!(table.row_index(0.5), Some(0));
+        assert_eq!(table.row_index(10.0), Some(12));
+
+        let column = table
+            .column("Mxm in Plattenmitte", "L")
+            .expect("coluna de Mxm");
+        assert_eq!(column.ta, Some(0.125));
+        assert_eq!(column.kind, RuschColumnKind::Wheel);
+        assert_eq!(column.values[0], Some(0.185));
+        assert_eq!(column.values[12], Some(1.25));
+    }
+
+    #[test]
+    fn rusch_dash_cells_are_absent_not_zero() {
+        // Planilha "Nr 1.1": J12 = "-" (coeficiente p de Mxm em lx/a = 0,5).
+        let table = RuschTableData::find(1, Some(1)).expect("tabela Nr 1.1");
+        let p = table
+            .columns
+            .iter()
+            .find(|c| c.group == "Mxm" && c.letter == "p")
+            .expect("coluna p de Mxm");
+        assert_eq!(p.values[0], None);
+        assert_ne!(p.values[0], Some(0.0));
+    }
+
+    #[test]
+    fn infinite_ratio_is_recorded_as_such() {
+        let table = RuschTableData::find(1, Some(1)).expect("tabela Nr 1.1");
+        assert!(table.ratio_is_infinite);
+        assert_eq!(table.ratio_raw, "∞");
+        assert_eq!(table.param, "ly/lx");
+    }
+
+    #[test]
+    fn shear_table_is_addressed_by_number() {
+        let shear = RuschTableData::find(99, None).expect("tabela Nr 99");
+        assert!(shear.columns.iter().all(|c| c.group.starts_with("Qx")));
+        assert!(RuschTableData::find(12345, None).is_none());
     }
 }
