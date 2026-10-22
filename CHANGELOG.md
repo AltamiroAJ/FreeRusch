@@ -56,15 +56,28 @@ fechar (ver [docs/ROADMAP.md](docs/ROADMAP.md)).
   vez de mal interpretadas.
 - **`VehicleGeometry` (NBR 7188:2013).** Cargas por eixo, distâncias de 4,00 m e
   1,25 m, faixa de 3,00 m e contagem de faixas `floor(b/3,00)` com mínimo de uma.
-- **Aviso de resultados preliminares.** `freerusch_core::RUSCH_TABLES_PRELIMINARY`
-  faz a GUI e a memória de cálculo declararem que os coeficientes de Rüsch ainda
-  não são as tabelas homologadas.
+- **Motor calculando pelas tabelas de Rüsch.** `design_moments()` combina carga
+  permanente e carga móvel com `M_d = 1,35·M_g + 1,5·M_q`. A GUI passou a escolher
+  a tabela por número (`Nr N.M`) e o relatório declara tabela, hipóteses, `φ`, `t`,
+  `lx/a` e `t/a`.
+- **`.frus` esquema v2.** Projeto passa a guardar tabela, espessuras, pavimento,
+  distância entre rodas e cargas; arquivos v1 continuam carregando (campos novos
+  caem no default).
 
 ### Alterado
 
-- **README** descreve as abas, o arquivo `.frus` e o diagrama SVG no relatório.
+- **README** descreve as abas, o arquivo `.frus` e o método de cálculo.
 - **Extensão do arquivo de projeto** padronizada em `.frus`; o README dizia
   `.frusch`, nome que nenhum outro ponto do repositório usava.
+
+### Removido
+
+- **Aviso de resultados preliminares.** `RUSCH_TABLES_PRELIMINARY` e os avisos na
+  GUI e no HTML foram removidos: deixaram de ser verdade quando o motor passou a
+  usar as tabelas embarcadas.
+- **Diagrama de momentos sintético** da GUI e do relatório: era uma parábola
+  desenhada, não o diagrama calculado. O relatório agora traz a tabela de momentos
+  por resultante.
 - Janela principal ampliada para acomodar a barra de abas e o diagrama.
 
 ### Corrigido

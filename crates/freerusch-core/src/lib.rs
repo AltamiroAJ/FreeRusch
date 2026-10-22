@@ -1,29 +1,44 @@
-//! Motor de cálculo puro do FreeRusch: lajes de pontes pelo método de Rüsch.
+//! Motor de cálculo do FreeRusch: lajes de pontes pelo método de Rüsch.
 //!
-//! Este crate não depende de UI nem de E/S. Ele fornece:
+//! O crate embarca as **186 tabelas de Rüsch** (DIN/IBSW) em
+//! `data/rusch_tables.json` e implementa os dois caminhos de carga:
 //!
-//! - [RuschTable]: tabelas de Rüsch embutidas (coeficientes adimensionais `alpha`
-//!   para momentos positivos e `beta` para momentos negativos em vãos contínuos),
-//!   indexadas por razão `l2/l1` e condição de borda;
-//! - interpolação bilinear dos coeficientes para razões intermediárias
-//!   ([`RuschTable::coefficients_at`]);
-//! - trens-tipo da NBR 7188:2013 ([`TrainType`], [`load_per_lane_knm`]) com a
-//!   largura-mínima efetiva `b_min = b + 3,00 m` e o fator de distribuição
-//!   transversal `θ = b_min / n · λ_v`;
-//! - cálculo do momento fletor de projeto a partir dos coeficientes
-//!   ([`design_moment`] / [`bending_moment`]) e geração de envelopes/diagramas
-//!   discretizados ([`moment_diagram`]).
+//! - **carga permanente** — [`uniform_load_moments`]: `M = k · q · lx²`;
+//! - **carga móvel** — [`live_load_moments`]:
+//!   `M = φ · (P·M_L + q·M_p + q·M_p')`, com [`impact_coefficient`] e
+//!   [`load_spread_width_m`];
+//! - **combinação** — [`design_moments`], devolvendo `M_d = γg·M_g + γq·M_q`.
+//!
+//! As tabelas são endereçadas por número ([`RuschTableData::find`]) e os rótulos
+//! de coluna são preservados crus, inclusive prefixos ainda não interpretados
+//! (`¾`, `(+)`, `-`, `_`).
+//!
+//! # Compatibilidade
+//!
+//! O bloco histórico ([`RuschTable`], [`design_moment`], [`bending_moment`],
+//! [`MomentDiagram`]) é o motor simplificado do esqueleto inicial: **não** usa as
+//! tabelas embarcadas. Existe só para compatibilidade até ser removido (item D4
+//! do roadmap); código novo deve usar [`design_moments`].
 //!
 //! # Exemplo
 //!
 //! ```
-//! use freerusch_core::{EdgeCondition, RuschTable, TrainType, bending_moment};
+//! use freerusch_core::{RuschDesignInput, design_moments};
 //!
-//! // Laje biapoiada de vão l1 = 8,00 m, concreto c25/20, trem-tipo TB-450.
-//! let table = RuschTable::for_edges(EdgeCondition::SimplySupported);
-//! let m = bending_moment(&table, &TrainType::TB450, 8.0, 0.0, 25.0)
-//!     .expect("cálculo válido");
-//! assert!(m.max_positive > 0.0);
+//! // Exemplo resolvido do workbook: tabela Nr 65.1, lx = 7,00 m.
+//! let input = RuschDesignInput {
+//!     table_number: 65,
+//!     table_variant: Some(1),
+//!     lx_m: 7.0,
+//!     slab_m: 0.26,
+//!     pavement_m: 0.07,
+//!     wheel_spacing_m: 2.0,
+//!     permanent_load_kn_m2: 10.5209,
+//!     wheel_load_kn: 75.0,
+//!     uniform_load_kn_m2: 5.0,
+//! };
+//! let moments = design_moments(&input).expect("cálculo válido");
+//! assert!(moments.iter().any(|m| m.resultant == "Mxm" && m.design > 0.0));
 //! ```
 
 use std::sync::OnceLock;
@@ -410,6 +425,124 @@ pub fn live_load_moments(
     Ok(moments)
 }
 
+/// Coeficiente de ponderação das ações permanentes (ELU, combinação normal).
+pub const GAMMA_G: f64 = 1.35;
+
+/// Coeficiente de ponderação das ações variáveis (carga móvel).
+pub const GAMMA_Q: f64 = 1.5;
+
+/// Entrada de um dimensionamento pelas tabelas de Rüsch.
+///
+/// Reúne a identificação da tabela e as grandezas físicas que alimentam os dois
+/// caminhos validados: carga permanente ([`uniform_load_moments`]) e carga móvel
+/// ([`live_load_moments`]).
+#[derive(Debug, Clone, PartialEq)]
+pub struct RuschDesignInput {
+    /// Número da tabela (`Nr N`).
+    pub table_number: u32,
+    /// Variante da tabela (o `.1`/`.2` do nome), quando existir.
+    pub table_variant: Option<u8>,
+    /// Vão transversal `lx` (m).
+    pub lx_m: f64,
+    /// Espessura da laje (m).
+    pub slab_m: f64,
+    /// Espessura da pavimentação (m).
+    pub pavement_m: f64,
+    /// Distância transversal entre rodas (m), entrada `lx/a` da tabela.
+    pub wheel_spacing_m: f64,
+    /// Carga permanente distribuída (kN/m²).
+    pub permanent_load_kn_m2: f64,
+    /// Carga por roda do trem-tipo (kN).
+    pub wheel_load_kn: f64,
+    /// Carga uniforme da pista (kN/m²).
+    pub uniform_load_kn_m2: f64,
+}
+
+/// Momentos de uma resultante: característicos e de projeto.
+#[derive(Debug, Clone, PartialEq)]
+pub struct DesignMoment {
+    /// Resultante (`"Mxm"`, `"Mxe"`, ...).
+    pub resultant: String,
+    /// Momento devido à carga permanente (kN·m/m).
+    pub permanent: f64,
+    /// Momento devido à carga móvel, já com impacto (kN·m/m).
+    pub live: f64,
+    /// Momento de projeto: `γg · permanente + γq · móvel` (kN·m/m).
+    pub design: f64,
+}
+
+/// Momentos por resultante pelo método das tabelas de Rüsch.
+///
+/// Combina os dois caminhos validados do crate:
+///
+/// ```text
+/// M_k,g = k · (g + revestimento) · lx²                  -- carga permanente
+/// M_k,q = φ · (P·M_L + q·M_p + q·M_p')                  -- carga móvel
+/// M_d   = γg · M_k,g + γq · M_k,q
+/// ```
+///
+/// # Validação
+///
+/// Para a tabela Nr 65.1 com `lx = 7,00 m` (exemplo do workbook), os campos
+/// `permanent` e `live` reproduzem `Main!I24..I29` e `Main!I34..I39`.
+///
+/// # Erros
+///
+/// [`RuschError::TableLookup`] se a tabela pedida não existir, e
+/// [`RuschError::InvalidDimension`] para entrada fora de domínio.
+pub fn design_moments(input: &RuschDesignInput) -> Result<Vec<DesignMoment>, RuschError> {
+    let table = RuschTableData::find(input.table_number, input.table_variant).ok_or_else(|| {
+        RuschError::TableLookup {
+            sheet: match input.table_variant {
+                Some(variant) => format!("Nr {}.{variant}", input.table_number),
+                None => format!("Nr {}", input.table_number),
+            },
+            detail: "tabela não encontrada no acervo embarcado".to_string(),
+        }
+    })?;
+
+    let permanent = uniform_load_moments(table, input.permanent_load_kn_m2, input.lx_m)?;
+    let live = live_load_moments(
+        table,
+        input.wheel_load_kn,
+        input.uniform_load_kn_m2,
+        input.lx_m,
+        input.pavement_m,
+        input.slab_m,
+        input.wheel_spacing_m,
+    )?;
+
+    let mut moments: Vec<DesignMoment> = Vec::new();
+    for (name, value) in permanent {
+        if let Some(entry) = moments.iter_mut().find(|m| m.resultant == name) {
+            entry.permanent = value;
+        } else {
+            moments.push(DesignMoment {
+                resultant: name,
+                permanent: value,
+                live: 0.0,
+                design: 0.0,
+            });
+        }
+    }
+    for (name, value) in live {
+        if let Some(entry) = moments.iter_mut().find(|m| m.resultant == name) {
+            entry.live = value;
+        } else {
+            moments.push(DesignMoment {
+                resultant: name,
+                permanent: 0.0,
+                live: value,
+                design: 0.0,
+            });
+        }
+    }
+    for entry in &mut moments {
+        entry.design = GAMMA_G * entry.permanent + GAMMA_Q * entry.live;
+    }
+    Ok(moments)
+}
+
 /// Erros do motor de cálculo Rüsch.
 #[derive(Debug, Clone, PartialEq, Error)]
 pub enum RuschError {
@@ -526,17 +659,6 @@ impl RuschTable {
         Ok((alpha, beta))
     }
 }
-
-/// Sinaliza que os coeficientes embutidos ainda **não** são as tabelas
-/// homologadas de Rüsch.
-///
-/// A base atual é didática e coerente com a formulação clássica (`alfa → 1/8`
-/// no painel isolado, `|beta| → 1/12` no limite igualmente contínuo), mas as
-/// tabelas completas (Helsper/Kerdahl/Blodner, formato DIN/IBSW) ainda não
-/// foram transcritas de uma fonte verificada. Enquanto este valor for `true`,
-/// a GUI e a memória de cálculo devem exibir o aviso de resultados não
-/// homologados.
-pub const RUSCH_TABLES_PRELIMINARY: bool = true;
 
 /// Tabela simplificada para painéis com apoios externos biapoiados.
 ///
@@ -1265,6 +1387,74 @@ mod tests {
                 name: "wheel_spacing_m",
                 ..
             })
+        ));
+    }
+
+    #[test]
+    fn design_moments_combine_both_validated_paths() {
+        // Reproduz o exemplo do workbook completo: tabela Nr 65.1, lx = 7,00 m,
+        // laje 26 cm, pavimento 7 cm, a = 2,00 m, g = 10,5209 kN/m², TB-450.
+        let input = RuschDesignInput {
+            table_number: 65,
+            table_variant: Some(1),
+            lx_m: 7.0,
+            slab_m: 0.26,
+            pavement_m: 0.07,
+            wheel_spacing_m: 2.0,
+            permanent_load_kn_m2: 10.5209,
+            wheel_load_kn: 75.0,
+            uniform_load_kn_m2: 5.0,
+        };
+        let moments = design_moments(&input).expect("cálculo");
+
+        let find = |name: &str| {
+            moments
+                .iter()
+                .find(|m| m.resultant == name)
+                .unwrap_or_else(|| panic!("resultante {name} ausente"))
+                .clone()
+        };
+
+        // Carga permanente: Main!I24..I29.
+        assert!((find("Mxm").permanent - 32.478).abs() < 1e-2, "Main!I24");
+        assert!((find("Myr").permanent - 10.3105).abs() < 1e-2, "Main!I29");
+        // Carga móvel: Main!I34..I39 (0,2 % de tolerância).
+        assert!((find("Mxm").live - 76.0005).abs() < 0.5, "Main!I34");
+        assert!((find("Mxr").live - 144.401).abs() < 0.5, "Main!I36");
+
+        // Combinação: M_d = 1,35·M_g + 1,5·M_q, termo a termo.
+        for moment in &moments {
+            let expected = GAMMA_G * moment.permanent + GAMMA_Q * moment.live;
+            assert!(
+                (moment.design - expected).abs() < 1e-9,
+                "{}",
+                moment.resultant
+            );
+        }
+        let mxm = find("Mxm");
+        assert!(
+            (mxm.design - (1.35 * 32.478 + 1.5 * 76.0005)).abs() < 1.0,
+            "M_d(Mxm) = {:.2}",
+            mxm.design
+        );
+    }
+
+    #[test]
+    fn design_moments_report_unknown_table() {
+        let input = RuschDesignInput {
+            table_number: 999,
+            table_variant: Some(1),
+            lx_m: 7.0,
+            slab_m: 0.26,
+            pavement_m: 0.07,
+            wheel_spacing_m: 2.0,
+            permanent_load_kn_m2: 10.0,
+            wheel_load_kn: 75.0,
+            uniform_load_kn_m2: 5.0,
+        };
+        assert!(matches!(
+            design_moments(&input),
+            Err(RuschError::TableLookup { .. })
         ));
     }
 }

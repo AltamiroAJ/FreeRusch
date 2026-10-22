@@ -17,7 +17,7 @@ in the root `Cargo.toml`.
 
 ```
 crates/freerusch-core      pure calculation engine (no UI, no file I/O)
-crates/freerusch-report    calculation memo in HTML (+ inline SVG diagram)
+crates/freerusch-report    calculation memo in self-contained HTML
 crates/freerusch-project   .frus project file, versioned JSON, atomic writes
 apps/freerusch             eframe/egui desktop GUI
 tools/                     extract_rusch_tables.py — regenerates embedded tables
@@ -77,9 +77,15 @@ The extractor records fidelity gaps instead of guessing: a `-` cell becomes
 unparseable number (`2,.82`) becomes `null` **and** an entry in the JSON
 `warnings` array. Check that array when the tables change.
 
-The engine still computes with the simplified coefficients in `RuschTable`;
-`RUSCH_TABLES_PRELIMINARY` stays `true` until the extracted tables are wired into
-`design_moment` (blocked on the `b_min`/θ rule — see `docs/ROADMAP.md`).
+The engine calculates from the embedded tables through `design_moments()`:
+permanent load via `uniform_load_moments()` (`M = k·q·lx²`) and live load via
+`live_load_moments()` (`M = φ·(P·M_L + q·M_p + q·M_p')`), combined as
+`M_d = 1.35·M_g + 1.5·M_q`. Both paths are validated against the workbook's
+worked example and the IME course notes — see `docs/ROADMAP.md` (R1/R2).
+
+The historical simplified block (`RuschTable`, `design_moment`, `bending_moment`,
+`MomentDiagram`) is still exported for compatibility but **must not** be used by
+new code; roadmap item D4 removes it.
 
 ## Release
 

@@ -30,17 +30,17 @@ Prefixos de ID: `R` bloqueio/risco · `D` domínio de engenharia · `I` infraest
 | Versão no workspace | `0.1.0`, sem tag publicada |
 | Crates | `freerusch-core`, `freerusch-report`, `freerusch-project`, `apps/freerusch` |
 | GUI | abas Inputs / Results / Report |
-| Relatório | HTML autocontido com diagrama SVG embutido |
-| Projeto | `.frus` JSON versionado, escrita atômica |
-| Testes | 30 (13 core · 9 project · 7 report · 1 doctest) |
+| Relatório | HTML autocontido declarando tabela, hipóteses e coeficientes |
+| Projeto | `.frus` JSON versionado (esquema v2), escrita atômica |
+| Testes | 45 (28 core · 11 project · 5 report · 1 doctest) |
 | CI | fmt · clippy `-D warnings` · test · build em Linux/Windows/macOS |
-| Tabelas de Rüsch | 186 de 186 embarcadas (workbook do IME) — ver [R1](#r1--extração-concluída-integração-pendente) |
-| Confiabilidade do resultado | **preliminar** — ver aviso abaixo |
+| Tabelas de Rüsch | 186 de 186 embarcadas (workbook do IME) — ver [R1](#r1--concluído) |
+| Confiabilidade do resultado | validado contra o workbook e as notas do IME (ver R1 e R2) |
 
-> **Aviso.** Os coeficientes de Rüsch embutidos são uma base didática, não as
-> tabelas homologadas. Enquanto `freerusch_core::RUSCH_TABLES_PRELIMINARY` for
-> `true`, a GUI e a memória de cálculo exibem esse aviso. Não use para projeto
-> executivo.
+> **Estado dos coeficientes.** As 186 tabelas de Rüsch estão embarcadas e o motor
+> calcula por elas; os caminhos de carga permanente e carga móvel foram validados
+> contra duas fontes independentes (R1 e R2). O bloco simplificado antigo segue no
+> crate apenas por compatibilidade até ser removido (item D4).
 
 ---
 
@@ -95,7 +95,7 @@ com `M_L`, `M_p`, `M_p'` interpolados bilinearmente em `(lx/a, t/a)`, primeiro e
 Resta apenas o significado dos prefixos de rótulo (`¾`, `(+)`, `-`, `_`), que não
 altera os coeficientes numéricos.
 
-### R1 — extração concluída, integração pendente
+### R1 — concluído
 
 A fonte das tabelas foi obtida: `Tabelas Rusch Final - IME.xls`, com **186 tabelas**
 (DIN/IBSW) em 188 planilhas, 13 linhas de `lx/a` (0,5 a 10) e 29 layouts de coluna
@@ -138,15 +138,13 @@ células com erro (`=#REF!`, `#VALUE!`), números ilegíveis (`2,.82`, `3,.08`,
 (`Nr 15.2`, `28.2`, `41.2`, `97.2`). Todas viram ausência declarada, nenhuma vira
 número inventado; conferir contra o documento original antes de usar essas células.
 
-Falta para fechar R1:
+**Concluído:** as tabelas estão embarcadas e o motor calcula por elas. A GUI
+escolhe a tabela por número e o relatório declara tabela, hipóteses e
+coeficientes. O bloco simplificado antigo (`RuschTable`/`design_moment`) fica no
+crate apenas por compatibilidade, até D4 removê-lo.
 
-- decidir a semântica dos prefixos de rótulo `¾`, `(+)`, `-`, `_`;
-- **integrar** ao motor e à GUI: `design_moment` ainda calcula com os coeficientes
-  simplificados de `RuschTable`, e `RUSCH_TABLES_PRELIMINARY` continua `true` de
-  propósito até a GUI passar a usar as tabelas reais.
-
-**Consequência:** não há mais bloqueio externo. Falta a integração (GUI/relatório
-usando as tabelas reais) e a engenharia de release já armada.
+**Pendência menor (não bloqueia):** decidir a semântica dos prefixos de rótulo
+`¾`, `(+)`, `-`, `_`. Os coeficientes numéricos não dependem disso.
 
 ## Domínio de engenharia
 
@@ -154,15 +152,15 @@ usando as tabelas reais) e a engenharia de release já armada.
 |---|---|---|---|
 | D1 ✅ | Coeficiente de impacto vertical φ: `1,4 − 0,007·lx` | `impact_coefficient()` com teste em duas fontes (1,351 e 1,38) | — |
 | D2 | Cargas de passeio e passarela: 3,0 kN/m² (geral) e 5,0 kN/m² (elemento direto/passarela) como entradas opcionais | teste de combinação com e sem passeio | — |
-| D3 | `design_moment` passa a usar `VehicleGeometry::lane_count`; remove o cálculo de faixas duplicado | teste garantindo uma única regra de contagem | — |
-| D4 | Eliminar `bending_moment`: ignora `_l2_over_l1` e fixa `spans=1`, `b=6,0 m` | função removida/renomeada; doctest e README ajustados | — |
-| D5 | Diagrama de momentos: distribuição real por seção **ou** renomear para `envelope_diagram` e rotular como ilustrativo | teste + texto explícito na GUI e no HTML | — |
-| D6 | `SlabInput` ganha `spans` e `edge`; o HTML declara vãos e condição de borda | asserção no HTML | — |
-| D7 | Validar `spans` na borda com erro específico | teste para 4 vãos engastados | — |
+| D3 | ~~`design_moment` usa `VehicleGeometry::lane_count`~~ — **obsoleto**: o modelo por tabela não conta faixas; a regra de faixas era do motor simplificado | — | — |
+| D4 | Remover do crate o bloco simplificado histórico (`RuschTable`, `EdgeCondition`, `design_moment`, `bending_moment`, `moment_diagram`, `MomentDiagram`) | API pública sem caminho duplicado; testes antigos removidos | — |
+| D5 ✅ | Diagrama de momentos sintético (parábola não calculada) | **resolvido por remoção**: o desenho enganoso saiu da GUI e do HTML; o relatório traz a tabela de momentos por resultante | — |
+| D6 | ~~`SlabInput` ganha `spans`/`edge`~~ — **obsoleto**: `SlabInput` foi substituído por `RuschDesignInput` | — | — |
+| D7 | ~~Validar `spans` na borda~~ — **obsoleto**: não há mais conceito de vãos no modelo por tabela; a validação agora é de tabela existente e dimensões | — | — |
 | D8 ✅ | Espraiamento da roda: contato 0,20 × 0,50 m → `t = 0,32 + 2·(pav + h/2)` | `load_spread_width_m()` devolve 0,69 m nas notas do IME | — |
 | D9 ✅ | Modelo da carga móvel: `M = φ·(P·M_L + q·M_p + q·M_p')` | `live_load_moments()` dentro de 0,2 % do exemplo do workbook | — |
 | D10 | Vãos múltiplos: posicionamento crítico do trem-tipo por vão | estudo + teste | — |
-| D11 | **Integrar** GUI e relatório às tabelas reais: escolha da tabela (`Nr N.M`), espessuras, pavimento, carga permanente | GUI calcula pelos caminhos validados e o aviso de preliminar desaparece | — |
+| D11 ✅ | **Integrar** GUI e relatório às tabelas reais: escolha da tabela (`Nr N.M`), espessuras, pavimento, carga permanente | GUI e relatório calculam por `design_moments()` e o aviso de preliminar foi removido | — |
 
 > **Divergência registrada (D8).** O prompt da Fase 2/4 fala em dispersão a
 > **30°**; as notas do IME — que reproduzem o exemplo do workbook — usam
@@ -193,17 +191,17 @@ usando as tabelas reais) e a engenharia de release já armada.
 | ID | Item | Aceite |
 |---|---|---|
 | X1 | Tag `v0.1.0` + GitHub Release com binários das 3 plataformas e SHA-256 | `cargo-dist` ou artifacts no `ci.yml` |
-| X2 | `RUSCH_TABLES_PRELIMINARY = false` — **somente** depois de D11 | avisos somem da GUI e do HTML |
+| X2 | ~~`RUSCH_TABLES_PRELIMINARY = false`~~ — **concluído**: a constante foi removida junto com o aviso, porque o motor passou a usar as tabelas embarcadas | aviso não existe mais na GUI nem no HTML |
 
 ### Critério de saída da v0.1.0
 
 1. R1 e R2 fechados ✅ (tabelas embarcadas; método da carga móvel validado).
 2. D1, D8 e D9 concluídos ✅; D2, D4, D6 e D7 concluídos com testes.
 3. D5 resolvido (real ou renomeado e rotulado).
-4. **D11** concluído: GUI e relatório calculando pelas tabelas reais.
+4. **D11** concluído ✅: GUI e relatório calculando pelas tabelas reais.
 5. I1 e I4 concluídos; CI verde nas 3 plataformas com `--locked`.
 6. CHANGELOG publicado e tag `v0.1.0` com binários.
-7. Nenhum aviso de "preliminar" visível na GUI nem no HTML.
+7. Não existe mais aviso de "preliminar" na GUI nem no HTML ✅.
 
 ---
 
@@ -256,8 +254,8 @@ Origem: [phase-4-consolidation-v1](prompts/phase-4-consolidation-v1.md).
 | R3 | Lista de recursos do T-Rüsch | página do fornecedor acessível, ou sua descrição |
 | R1 | Semântica dos prefixos `¾`/`(+)`/`-`/`_` nos rótulos das tabelas | confirmação no documento original (não bloqueia a extração nem o cálculo) |
 
-Nenhum bloqueio externo impede a v0.1.0: falta apenas a integração D11 e a
-engenharia de release.
+Nenhum bloqueio externo impede a v0.1.0: resta apenas a limpeza D4 (remover o
+motor simplificado histórico) e a engenharia de release, que já está armada.
 
 # Histórico de fases
 

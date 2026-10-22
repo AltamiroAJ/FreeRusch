@@ -59,11 +59,12 @@ cargo run -p freerusch          # abre a janela "FreeRusch"
 cargo test --workspace          # testes do motor de cálculo e do relatório
 ```
 
-A janela tem três abas: **Inputs** (dados do painel), **Results**
-(coeficientes, momentos e diagrama) e **Report** (memória de cálculo).
-O projeto completo é gravado em `.frus` (JSON versionado, escrita atômica via
-`craft-atomic`) e a memória de cálculo é exportada em HTML autocontido, com o
-diagrama de momentos embutido como SVG — sem arquivos externos nem JavaScript.
+A janela tem três abas: **Inputs** (tabela de Rüsch e cargas), **Results**
+(momentos característicos e de projeto, por resultante) e **Report** (memória de
+cálculo). O projeto completo é gravado em `.frus` (JSON versionado, escrita
+atômica via `craft-atomic`) e a memória de cálculo é exportada em HTML
+autocontido, declarando a tabela usada, as hipóteses e os coeficientes — sem
+arquivos externos nem JavaScript.
 
 Defina `FREERUSCH_NO_PREFS=1` para rodar sem criar `config.toml` no perfil do
 sistema (útil em CI/containers).
@@ -71,31 +72,44 @@ sistema (útil em CI/containers).
 ## Uso como biblioteca
 
 ```rust
-use freerusch_core::{bending_moment, EdgeCondition, RuschTable, TrainType};
+use freerusch_core::{RuschDesignInput, design_moments};
 
-let table = RuschTable::for_edges(EdgeCondition::SimplySupported);
-let m = bending_moment(&table, &TrainType::TB450, /*l1=*/ 8.0, /*l2=*/ 0.0, /*q=*/ 25.0)?;
-println!("M⁺ = {:.2} kN·m/m (α = {:.4})", m.max_positive, m.alpha);
+// Exemplo resolvido do workbook: tabela Nr 65.1, lx = 7,00 m.
+let input = RuschDesignInput {
+    table_number: 65,
+    table_variant: Some(1),
+    lx_m: 7.0,
+    slab_m: 0.26,
+    pavement_m: 0.07,
+    wheel_spacing_m: 2.0,
+    permanent_load_kn_m2: 10.5209,
+    wheel_load_kn: 75.0,
+    uniform_load_kn_m2: 5.0,
+};
+let moments = design_moments(&input)?;
+for m in &moments {
+    println!(
+        "{:<4} M_g {:8.3}  M_q {:8.3}  M_d {:8.3}",
+        m.resultant, m.permanent, m.live, m.design
+    );
+}
 ```
 
-As tabelas de Rüsch extraídas do workbook de referência podem ser consultadas
-diretamente, por número de tabela:
+As **186 tabelas** de Rüsch (DIN/IBSW) estão embarcadas em
+`crates/freerusch-core/data/rusch_tables.json` — 56.693 coeficientes — e são
+endereçadas por número, como nas tabelas impressas:
 
 ```rust
 use freerusch_core::RuschTableData;
 
-// Tabela Nr 1.1, Mxm no centro da laje, t/a = 0,125, lx/a = 2,0
-let table = RuschTableData::find(1, Some(1)).expect("tabela Nr 1.1");
-let column = table.column("Mxm in Plattenmitte", "L").expect("coeficiente");
-let i = table.row_index(2.0).expect("lx/a = 2,0");
-assert_eq!(column.values[i], Some(0.52));
+let table = RuschTableData::find(65, Some(1)).expect("tabela Nr 65.1");
+assert_eq!(table.sheet, "Nr 65.1");
 ```
 
-> As **186 tabelas** do workbook de referência já estão embarcadas
-> (`crates/freerusch-core/data/rusch_tables.json`), com 56.693 coeficientes e 11
-> lacunas registradas para conferência manual. O motor de cálculo ainda usa os
-> coeficientes simplificados até a regra de distribuição `b_min`/θ ser fechada —
-> ver [`docs/ROADMAP.md`](docs/ROADMAP.md#r1--extração-concluída-integração-pendente).
+> Os caminhos de cálculo são validados contra **duas fontes independentes**: o
+> exemplo resolvido do workbook do IME (seis momentos com erro < 0,2 %) e as notas
+> de aula do mesmo curso (φ = 1,351 e espraiamento t = 0,69 m idênticos). Detalhes
+> e fontes em [`docs/ROADMAP.md`](docs/ROADMAP.md).
 
 ## Roadmap
 
@@ -105,17 +119,18 @@ está em [`docs/ROADMAP.md`](docs/ROADMAP.md). O histórico de mudanças fica no
 
 Resumo:
 
-- **v0.1.0** (em andamento) — domínio confiável: tabelas de Rüsch homologadas,
-  coeficiente de impacto, cargas de passeio e memória de cálculo declarando as
-  próprias hipóteses.
+- **v0.1.0** (em andamento) — motor de cálculo sobre as tabelas de Rüsch
+  embarcadas, com carga permanente e carga móvel validadas contra o exemplo do
+  workbook, e release no padrão da família Craft.
 - **v0.2.0** — armadura e ELU (NBR 6118), combinações de ações, `.frus` v2.
 - **v1.0.0** — consolidação: carga de pneu, i18n pt-BR/en-US, release com checksums.
 
-> **Aviso — resultados preliminares.** Os coeficientes de Rüsch embutidos são
-> uma base didática coerente com a formulação clássica, **não** as tabelas
-> homologadas de Helsper/Kerdahl/Blodner. Enquanto
-> `freerusch_core::RUSCH_TABLES_PRELIMINARY` for `true`, a GUI e a memória de
-> cálculo exibem esse aviso. Não use para projeto executivo.
+> **Escopo e limites desta versão.** O FreeRusch aplica o método das tabelas de
+> Rüsch, com coeficiente de impacto `φ = 1,4 − 0,007·lx` e espraiamento de roda
+> `t = √(0,20·0,50) + 2·(pav + h/2)`. A carga móvel é combinada com a permanente
+> por `M_d = 1,35·M_g + 1,5·M_q`. **Não** cobre ainda: cargas de passeio,
+> dimensionamento de armadura (NBR 6118), punção por pneu e posicionamento
+> automático crítico do trem-tipo — todos itens abertos no roadmap.
 >
 > As cargas de multidão seguem a NBR 7188:2013: **5,0 kN/m²** (TB-450) e
 > **4,0 kN/m²** (TB-240), atuando em conjunto com o veículo-tipo.
