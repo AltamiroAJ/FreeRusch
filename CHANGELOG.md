@@ -24,8 +24,11 @@ fechar (ver [docs/ROADMAP.md](docs/ROADMAP.md)).
   (`tools/generate_attribution.py`), com a proveniência das tabelas embarcadas.
 - **`AGENTS.md` / `CLAUDE.md`**, `clippy.toml` e `Cargo.lock` versionado,
   alinhando o repositório às convenções de CI e reprodutibilidade da família.
-- **Tabelas de Rüsch** em `freerusch-core` (`RuschTableData`, `RuschColumn`,
-  `RuschColumnKind`) com extrator `tools/extract_rusch_tables.py`.
+- **Tabelas de Rüsch completas.** As 186 tabelas do workbook de referência foram
+  extraídas para `freerusch-core/data/rusch_tables.json` (56.693 coeficientes),
+  com extrator `tools/extract_rusch_tables.py`. Células `-` viram ausência e
+  erros/typos da planilha ficam registrados em `warnings` em vez de virarem
+  número.
 - **GUI com abas.** Janela com as abas *Inputs*, *Results* e *Report*, construídas
   sobre os primitivos de `craft_ui::tabs` (`fit` + `Tab::show_at`), já que a
   `craft-ui` fornece o átomo de aba e a matemática de larguras, mas não um

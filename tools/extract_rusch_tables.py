@@ -1,16 +1,21 @@
 #!/usr/bin/env python3
-"""Extrai as tabelas de Rüsch do workbook do IME para JSON + Rust.
+"""Extrai as tabelas de Rüsch do workbook do IME para um JSON versionado.
 
 A planilha de origem (`Tabelas Rusch Final - IME.xls`, formato BIFF legado) não é
-versionada. Este script consome a versão `.xlsx` já convertida e produz dois
-artefatos determinísticos:
+versionada. Este script consome a versão `.xlsx` já convertida e produz um único
+artefato determinístico:
 
-  crates/freerusch-core/data/rusch_tables.json   (auditoria, legível)
-  crates/freerusch-core/src/rusch_data.rs        (compilado, @generated)
+  crates/freerusch-core/data/rusch_tables.json
+
+O crate `freerusch-core` embute esse JSON com `include_str!` e o desserializa uma
+vez (`rusch_tables()`). Gerar código Rust com 56 mil coeficientes foi descartado:
+um arquivo de ~1,6 MB de expressões degrada o tempo de compilação sem ganho.
 
 Regras de fidelidade:
   * nenhum valor é interpolado, arredondado ou reinterpretado;
-  * qualquer célula ausente na região de dados é erro fatal, não `null`;
+  * célula `-` vira ausência (`null`), nunca `0,0`;
+  * célula com erro de planilha (`=#REF!`) ou número ilegível (`2,.82`) vira
+    ausência **e** entra na lista `warnings` do JSON, para conferência manual;
   * rótulos de coluna são preservados crus (inclusive prefixos `¾`, `(+)`, `-`, `_`),
     porque o significado desses prefixos ainda não foi confirmado com o documento
     original.
@@ -20,7 +25,7 @@ Conversão do `.xls` (uma vez, com o LibreOffice empacotado):
       --input "Tabelas Rusch Final - IME.xls" --output target/ref/tabelas-rusch.xlsx
 
 Uso:
-  python tools/extract_rusch_tables.py --xlsx target/ref/tabelas-rusch.xlsx
+  python tools/extract_rusch_tables.py --xlsx target/ref/tabelas-rusch.xlsx --all
 """
 
 from __future__ import annotations
@@ -34,25 +39,34 @@ from pathlib import Path
 
 import openpyxl
 
-# Recorte inicial: cinco tabelas cobrindo os layouts distintos encontrados.
-# O extrator é genérico — ampliar esta lista traz o resto do conjunto.
-SHEETS = ["Nr 1.1", "Nr 4.1", "Nr 16.1", "Nr 99", "Nr 27.1"]
+# Amostra usada enquanto o pipeline era validado. O build real roda com `--all`,
+# que descobre todas as planilhas de tabela do workbook.
+SAMPLE_SHEETS = ["Nr 1.1", "Nr 4.1", "Nr 16.1", "Nr 99", "Nr 27.1"]
+
+SHEET_PATTERN = re.compile(r"^Nr\.?\s*\d+")
+SHEET_NAME = re.compile(r"^Nr\.?\s*(\d+)(?:\.(\d+))?$")
 
 DATA_ROWS = 13  # lx/a = 0.5, 1, 1.5, 2, 2.5, 3, 4, 5, 6, 7, 8, 9, 10
 
 REPO = Path(__file__).resolve().parent.parent
 OUT_JSON = REPO / "crates/freerusch-core/data/rusch_tables.json"
-OUT_RS = REPO / "crates/freerusch-core/src/rusch_data.rs"
 
 
 DASHES = {"-", "–", "—", ""}
 
+# Células que o próprio workbook carrega como erro de planilha (fórmula
+# quebrada). Não são valor nem "não se aplica": viram ausência **registrada**,
+# para que a lacuna apareça na auditoria em vez de virar um número inventado.
+EXCEL_ERRORS = ("#NULL!", "#DIV/0!", "#VALUE!", "#REF!", "#NAME?", "#NUM!", "#N/A")
 
-def as_optional_float(value, where: str):
-    """Converte uma célula em float, ou `None` para os traços de "sem valor".
+
+def as_optional_float(value, where: str, warnings: list):
+    """Converte uma célula em float, ou `None` para ausência.
 
     Nas tabelas, `-` significa que o coeficiente não se aplica (contribuição
     nula). Isso é preservado como ausência explícita, nunca como 0,0 inventado.
+    Erros de planilha (`=#REF!` etc.) também viram ausência, mas ficam
+    registrados em `warnings` e no JSON para revisão.
     """
     if isinstance(value, bool):
         raise SystemExit(f"célula booleana em {where}")
@@ -63,10 +77,19 @@ def as_optional_float(value, where: str):
     text = str(value).strip()
     if text in DASHES:
         return None
+    if any(err in text for err in EXCEL_ERRORS):
+        warnings.append({"cell": where, "raw": text, "reason": "spreadsheet error"})
+        return None
+    if text.startswith("="):
+        raise SystemExit(f"fórmula sem valor em cache em {where}: {value!r}")
     try:
         return float(text.replace(",", "."))
-    except ValueError as exc:
-        raise SystemExit(f"valor não numérico em {where}: {value!r}") from exc
+    except ValueError:
+        # Erro de digitação na planilha (ex.: "2,.82"). Reparar o número seria
+        # inventar um coeficiente: fica ausente e registrado para conferência
+        # contra o documento original.
+        warnings.append({"cell": where, "raw": text, "reason": "unparseable number"})
+        return None
 
 
 def find_header(grid):
@@ -77,7 +100,52 @@ def find_header(grid):
     return None, None
 
 
-def parse_sheet(name, grid):
+def parse_id(name: str) -> tuple[int | None, int | None]:
+    """Número e variante derivados do NOME da planilha (autoritativo)."""
+    match = SHEET_NAME.match(name.strip())
+    if not match:
+        return None, None
+    return int(match.group(1)), (
+        int(match.group(2)) if match.group(2) else None
+    )
+
+
+def build_grid(ws_formula, ws_values, warnings: list) -> list:
+    """Grade resolvida: fórmulas substituídas pelo valor em cache.
+
+    Algumas planilhas trazem fórmulas reais (`=C12*1.97`). Ler apenas em modo
+    `data_only=False` devolveria o texto da fórmula, não o número. Cruzamos as
+    duas leituras: a estrutura vem da planilha de fórmulas, os valores das
+    células calculadas vêm da leitura `data_only=True`.
+    """
+    raw = [[c.value for c in row] for row in ws_formula.iter_rows(max_row=40, max_col=40)]
+    cached = [[c.value for c in row] for row in ws_values.iter_rows(max_row=40, max_col=40)]
+
+    resolved = []
+    for r, row in enumerate(raw):
+        out = []
+        for c, cell in enumerate(row):
+            if isinstance(cell, str) and cell.startswith("="):
+                value = None
+                if r < len(cached) and c < len(cached[r]):
+                    value = cached[r][c]
+                if value is None:
+                    warnings.append(
+                        {
+                            "cell": f"r{r + 1}c{c + 1}",
+                            "raw": cell,
+                            "reason": "formula without cached value",
+                        }
+                    )
+                out.append(value)
+            else:
+                out.append(cell)
+        resolved.append(out)
+    return resolved
+
+
+def parse_sheet(name, grid, warnings: list | None = None):
+    warnings = warnings if warnings is not None else []
     header_row, label_col = find_header(grid)
     if header_row is None:
         raise SystemExit(f"{name!r}: linha 'lx/a' não encontrada")
@@ -129,7 +197,9 @@ def parse_sheet(name, grid):
         for col in columns:
             c = col["index"]
             cell = row[c] if c < len(row) else None
-            col["values"].append(as_optional_float(cell, f"{name}!r{r + 1}c{c + 1}"))
+            col["values"].append(
+                as_optional_float(cell, f"{name}!r{r + 1}c{c + 1}", warnings)
+            )
 
     if len(rows) != DATA_ROWS:
         raise SystemExit(f"{name!r}: {len(rows)} linhas de dados, esperado {DATA_ROWS}")
@@ -137,15 +207,22 @@ def parse_sheet(name, grid):
         if len(col["values"]) != DATA_ROWS:
             raise SystemExit(f"{name!r}: coluna {col['group']!r} incompleta")
 
-    # Cabeçalho: 'Nr. N.M' e o parâmetro ly/lx (ou l/a).
-    number = variant = None
+    # Identidade: o nome da planilha é autoritativo. O rótulo interno é só
+    # conferido — há planilhas cujo cabeçalho repete o número da anterior.
+    number, variant = parse_id(name)
+    label_raw = None
     for row in grid[:header_row]:
         for v in row:
-            if isinstance(v, str):
-                m = re.match(r"^Nr\.?\s*(\d+)(?:\.(\d+))?$", v.strip())
-                if m:
-                    number = int(m.group(1))
-                    variant = int(m.group(2)) if m.group(2) else None
+            if isinstance(v, str) and SHEET_NAME.match(v.strip()):
+                label_raw = v.strip()
+    if label_raw and parse_id(label_raw) != (number, variant):
+        warnings.append(
+            {
+                "cell": "header",
+                "raw": label_raw,
+                "reason": f"sheet name {name!r} disagrees with header label",
+            }
+        )
 
     param = ratio_raw = None
     for row in grid[:header_row]:
@@ -169,87 +246,51 @@ def parse_sheet(name, grid):
         "ratio_is_infinite": ratio_raw == "∞",
         "rows": rows,
         "columns": columns,
+        "warnings": warnings,
     }
 
 
-def rust_float(v: float) -> str:
-    if v == int(v) and abs(v) < 1e15:
-        return f"{v:.1f}"
-    return repr(v)
+def sort_key(name: str) -> tuple[int, int, str]:
+    """Ordem determinística: número, variante, nome."""
+    match = SHEET_NAME.match(name.strip())
+    if not match:
+        return (10**6, 10**6, name)
+    return (int(match.group(1)), int(match.group(2) or 0), name)
 
 
-def rs(text: str) -> str:
-    """Literal de string para Rust: UTF-8 cru, sem escapes \\uXXXX do JSON."""
-    return json.dumps(text, ensure_ascii=False)
-
-
-def emit_rust(tables, source_name, source_sha) -> str:
-    lines = [
-        "// @generated por tools/extract_rusch_tables.py — NÃO EDITAR À MÃO.",
-        "//!",
-        "//! Dados das tabelas de Rüsch extraídos de",
-        f"//! `{source_name}` (SHA-256 `{source_sha}`).",
-        "//!",
-        "//! Recorte parcial: apenas as tabelas listadas em `SHEETS` no extrator.",
-        "//! Os rótulos de coluna são preservados crus, incluindo prefixos ainda",
-        "//! não interpretados (`¾`, `(+)`, `-`, `_`).",
-        "",
-        "use super::{RuschColumn, RuschColumnKind, RuschTableData};",
-        "",
-        "/// Tabelas extraídas, na ordem em que aparecem no extrator.",
-        "pub static TABLES: &[RuschTableData] = &[",
-    ]
-    for t in tables:
-        variant = "None" if t["variant"] is None else f"Some({t['variant']})"
-        lines.append("    RuschTableData {")
-        lines.append(f"        sheet: {rs(t['sheet'])},")
-        lines.append(f"        number: {t['number']},")
-        lines.append(f"        variant: {variant},")
-        lines.append(f"        param: {rs(t['param'] or '')},")
-        lines.append(f"        ratio_raw: {rs(t['ratio_raw'] or '')},")
-        lines.append(f"        ratio_is_infinite: {str(t['ratio_is_infinite']).lower()},")
-        rows = ", ".join(rust_float(r) for r in t["rows"])
-        lines.append(f"        rows: &[{rows}],")
-        lines.append("        columns: &[")
-        for col in t["columns"]:
-            ta = "None" if col["ta"] is None else f"Some({rust_float(col['ta'])})"
-            kind = "Wheel" if col["kind"] == "wheel" else "Uniform"
-            values = ", ".join(
-                "None" if v is None else f"Some({rust_float(v)})"
-                for v in col["values"]
-            )
-            lines.append("            RuschColumn {")
-            lines.append(f"                group: {rs(col['group'])},")
-            lines.append(f"                letter: {rs(col['letter'])},")
-            lines.append(f"                ta: {ta},")
-            lines.append(f"                kind: RuschColumnKind::{kind},")
-            lines.append(f"                values: &[{values}],")
-            lines.append("            },")
-        lines.append("        ],")
-        lines.append("    },")
-    lines.append("];")
-    return "\n".join(lines) + "\n"
+def discover_sheets(workbook) -> list[str]:
+    """Todas as planilhas de tabela do workbook, em ordem determinística."""
+    found = [name for name in workbook.sheetnames if SHEET_PATTERN.match(name.strip())]
+    return sorted(found, key=sort_key)
 
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--xlsx", required=True, help="workbook .xlsx convertido")
+    parser.add_argument(
+        "--all",
+        action="store_true",
+        help="extrai todas as planilhas Nr* (padrão: apenas a amostra)",
+    )
     parser.add_argument("--source-name", default="Tabelas Rusch Final - IME.xls")
     parser.add_argument("--source-sha256", default="")
     args = parser.parse_args()
 
     xlsx = Path(args.xlsx)
     workbook = openpyxl.load_workbook(xlsx, read_only=True, data_only=False)
+    workbook_values = openpyxl.load_workbook(xlsx, read_only=True, data_only=True)
 
-    missing = [s for s in SHEETS if s not in workbook.sheetnames]
+    sheets = discover_sheets(workbook) if args.all else SAMPLE_SHEETS
+
+    missing = [s for s in sheets if s not in workbook.sheetnames]
     if missing:
         raise SystemExit(f"planilhas ausentes: {missing}")
 
     tables = []
-    for name in SHEETS:
-        ws = workbook[name]
-        grid = [[c.value for c in row] for row in ws.iter_rows(max_row=40, max_col=40)]
-        table = parse_sheet(name, grid)
+    for name in sheets:
+        sheet_warnings: list = []
+        grid = build_grid(workbook[name], workbook_values[name], sheet_warnings)
+        table = parse_sheet(name, grid, sheet_warnings)
         tables.append(table)
         kinds = {}
         for col in table["columns"]:
@@ -261,6 +302,17 @@ def main() -> int:
             f"cols={len(table['columns'])} {kinds} sem_valor={dashes}"
         )
     workbook.close()
+    workbook_values.close()
+
+    # Identidade única: (number, variant) é a chave de busca pública.
+    seen = {}
+    for table in tables:
+        key = (table["number"], table["variant"])
+        if key in seen:
+            raise SystemExit(
+                f"identidade duplicada {key}: {seen[key]!r} e {table['sheet']!r}"
+            )
+        seen[key] = table["sheet"]
 
     payload = {
         "source": {
@@ -271,22 +323,31 @@ def main() -> int:
         },
         "rows_axis": {"name": "lx/a", "values": tables[0]["rows"]},
         "row_count": DATA_ROWS,
-        "scope": {"note": "recorte parcial", "sheets": SHEETS},
+        "scope": {
+            "note": "conjunto completo" if args.all else "recorte parcial",
+            "sheet_count": len(sheets),
+            "sheets": sheets,
+        },
         "tables": tables,
+        "warnings": [
+            {"sheet": t["sheet"], **w} for t in tables for w in t["warnings"]
+        ],
     }
 
     OUT_JSON.parent.mkdir(parents=True, exist_ok=True)
     OUT_JSON.write_text(
         json.dumps(payload, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
     )
-    OUT_RS.write_text(
-        emit_rust(tables, args.source_name, args.source_sha256), encoding="utf-8"
-    )
 
     total = sum(len(c["values"]) for t in tables for c in t["columns"])
-    print(f"\ntabelas={len(tables)} valores={total}")
+    warn_count = sum(len(t["warnings"]) for t in tables)
+    print(f"\ntabelas={len(tables)} valores={total} celulas_com_erro={warn_count}")
+    if warn_count:
+        print("  células de planilha com erro (viram ausência, registradas no JSON):")
+        for t in tables:
+            for w in t["warnings"][:3]:
+                print(f"    {t['sheet']} {w['cell']} {w['raw']}")
     print(f"escrito: {OUT_JSON.relative_to(REPO)}")
-    print(f"escrito: {OUT_RS.relative_to(REPO)}")
     return 0
 
 

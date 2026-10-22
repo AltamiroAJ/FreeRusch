@@ -52,25 +52,34 @@ values (spreadsheet cell, normative clause, hand calculation).
   `ProjectError`).
 - `///` docs on every public item. Public API changes update the README example.
 - Tabular data is generated, never hand-edited: change
-  `tools/extract_rusch_tables.py`, rerun it, and commit both the JSON and the
-  generated Rust.
+  `tools/extract_rusch_tables.py`, rerun it, and commit the regenerated JSON.
 - Commits are atomic and follow `type: imperative summary` with a body that
   explains *why*.
 
 ## Embedded tables
 
-`crates/freerusch-core/data/rusch_tables.json` is the audit artifact;
-`crates/freerusch-core/src/rusch_data.rs` is generated from it and must not be
-edited by hand. The source workbook is not versioned; its SHA-256 is stamped into
-the generated header. Regenerate with:
+`crates/freerusch-core/data/rusch_tables.json` is the single artifact for the
+186 Rüsch tables. `freerusch-core` embeds it with `include_str!` and
+deserializes it once behind `rusch_tables()`. Do not generate Rust source for the
+data: ~57k coefficients as expressions made compilation several times slower for
+no benefit.
+
+The source workbook is not versioned; its SHA-256 is stamped into the JSON
+header. Regenerate with:
 
 ```sh
-python tools/extract_rusch_tables.py --xlsx <converted workbook.xlsx> \
+python tools/extract_rusch_tables.py --xlsx <converted workbook.xlsx> --all \
   --source-sha256 <sha256 of the original .xls>
 ```
 
-The extractor aborts on a missing cell and maps `-` cells to `None` (absent),
-never to an invented `0.0`.
+The extractor records fidelity gaps instead of guessing: a `-` cell becomes
+`null` (absent, never `0.0`), and a spreadsheet error (`=#REF!`) or an
+unparseable number (`2,.82`) becomes `null` **and** an entry in the JSON
+`warnings` array. Check that array when the tables change.
+
+The engine still computes with the simplified coefficients in `RuschTable`;
+`RUSCH_TABLES_PRELIMINARY` stays `true` until the extracted tables are wired into
+`design_moment` (blocked on the `b_min`/θ rule — see `docs/ROADMAP.md`).
 
 ## Release
 

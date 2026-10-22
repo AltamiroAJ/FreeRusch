@@ -34,7 +34,7 @@ Prefixos de ID: `R` bloqueio/risco · `D` domínio de engenharia · `I` infraest
 | Projeto | `.frus` JSON versionado, escrita atômica |
 | Testes | 30 (13 core · 9 project · 7 report · 1 doctest) |
 | CI | fmt · clippy `-D warnings` · test · build em Linux/Windows/macOS |
-| Tabelas de Rüsch | 5 de 186 embarcadas (workbook do IME) — ver [R1](#r1--em-andamento-fonte-obtida) |
+| Tabelas de Rüsch | 186 de 186 embarcadas (workbook do IME) — ver [R1](#r1--extração-concluída-integração-pendente) |
 | Confiabilidade do resultado | **preliminar** — ver aviso abaixo |
 
 > **Aviso.** Os coeficientes de Rüsch embutidos são uma base didática, não as
@@ -57,40 +57,45 @@ e a memória de cálculo declarando suas próprias hipóteses.
 | **R2** | Regra normativa de largura efetiva `b_min`/`b_max` e do fator de distribuição transversal θ por faixa de influência | cláusula da NBR 7188:2013 |
 | **R3** | Conferir a lista de recursos do T-Rüsch contra este roadmap | página do fornecedor — na última verificação retornou HTTP 500 |
 
-### R1 — em andamento (fonte obtida)
+### R1 — extração concluída, integração pendente
 
 A fonte das tabelas foi obtida: `Tabelas Rusch Final - IME.xls`, com **186 tabelas**
 (DIN/IBSW) em 188 planilhas, 13 linhas de `lx/a` (0,5 a 10) e 29 layouts de coluna
 distintos. As resultantes vão de `Mxm`/`Mym` (centro da laje) a `Mxr`/`Myr`
 (meio da borda livre), `Mxe`/`Mye` (meio da borda) e `Qx` (cortante).
 
-Pipeline implementado:
+Pipeline implementado e executado para o conjunto completo:
 
 ```
-.xls  --(LibreOffice)-->  .xlsx  --tools/extract_rusch_tables.py-->
-      crates/freerusch-core/data/rusch_tables.json   (auditoria)
-      crates/freerusch-core/src/rusch_data.rs        (@generated, compilado)
+.xls  --(LibreOffice)-->  .xlsx  --tools/extract_rusch_tables.py --all-->
+      crates/freerusch-core/data/rusch_tables.json   (único artefato, versionado)
 ```
 
 Decisões registradas: a fonte **não** é versionada (o `.xls` tem SHA-256 gravado no
-arquivo gerado); endereçamento por **número da tabela** (`Nr N.M`), já que não há
-legenda; rótulos de coluna preservados **crus**; célula `-` vira `None`
-(ausência), nunca `0,0`.
+JSON); endereçamento por **número da tabela** (`Nr N.M`), já que não há legenda;
+rótulos de coluna preservados **crus**; célula `-` vira ausência, nunca `0,0`.
+O JSON é embutido com `include_str!` e desserializado uma vez em `rusch_tables()`.
 
-**Estado:** 5 de 186 tabelas embarcadas e testadas — Nr 1.1, 4.1, 16.1 (momentos,
-layouts de 2 a 4 resultantes) e Nr 99 (cortante) e Nr 27.1 (parâmetro `l/a` e
-rótulos com prefixo). 1 092 valores conferidos contra células da planilha.
+**Estado:** **186 de 186 tabelas** embarcadas — 56.693 coeficientes, 13 linhas por
+tabela, índices `(número, variante)` únicos e verificados por teste.
 
-Falta:
+**Lacunas registradas na fonte (11, em `warnings` no JSON):** a planilha traz
+células com erro (`=#REF!`, `#VALUE!`), números ilegíveis (`2,.82`, `3,.08`,
+`1,.26`) e cabeçalhos cujo rótulo não casa com o nome da planilha
+(`Nr 15.2`, `28.2`, `41.2`, `97.2`). Todas viram ausência declarada, nenhuma vira
+número inventado; conferir contra o documento original antes de usar essas células.
 
-- ampliar o recorte às 186 tabelas (o extrator é genérico; falta revisar os 29 layouts);
+Falta para fechar R1:
+
 - decidir a semântica dos prefixos de rótulo `¾`, `(+)`, `-`, `_`;
-- resolver duas particularidades da fonte: `Nr 2.2` (região de dados deslocada) e
-  `Nr 27.1/27.2` (usam `l/a` em vez de `ly/lx`);
+- **integrar** as tabelas ao motor: `design_moment` ainda calcula com os
+  coeficientes simplificados de `RuschTable`, e `RUSCH_TABLES_PRELIMINARY`
+  continua `true` de propósito. A integração depende de **R2** (regra de
+  `b_min`/θ), sem a qual o momento resultante estaria errado mesmo com a tabela
+  certa.
 
-**Consequência:** v0.1.0 **não é publicado** com coeficientes preliminares. Enquanto
-R1 não fechar, a alternativa é um `0.1.0-pre` explicitamente marcado como não
-utilizável em projeto.
+**Consequência:** com R1 extraído, o único bloqueio externo restante para a v0.1.0
+confiável é **R2**.
 
 ## Domínio de engenharia
 

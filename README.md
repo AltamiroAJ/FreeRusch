@@ -91,8 +91,11 @@ let i = table.row_index(2.0).expect("lx/a = 2,0");
 assert_eq!(column.values[i], Some(0.52));
 ```
 
-> Apenas 5 das 186 tabelas estão embarcadas até aqui; o recorte e o processo de
-> extração estão descritos em [`docs/ROADMAP.md`](docs/ROADMAP.md#r1--em-andamento-fonte-obtida).
+> As **186 tabelas** do workbook de referência já estão embarcadas
+> (`crates/freerusch-core/data/rusch_tables.json`), com 56.693 coeficientes e 11
+> lacunas registradas para conferência manual. O motor de cálculo ainda usa os
+> coeficientes simplificados até a regra de distribuição `b_min`/θ ser fechada —
+> ver [`docs/ROADMAP.md`](docs/ROADMAP.md#r1--em-andamento-fonte-obtida).
 
 ## Roadmap
 

@@ -26,12 +26,14 @@
 //! assert!(m.max_positive > 0.0);
 //! ```
 
+use std::sync::OnceLock;
+
+use serde::Deserialize;
 use thiserror::Error;
 
-pub mod rusch_data;
-
 /// Natureza de um coeficiente numa tabela de Rüsch.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Deserialize)]
+#[serde(rename_all = "lowercase")]
 pub enum RuschColumnKind {
     /// Coeficiente `L`: parcela do trem-tipo, em função de `t/a`.
     Wheel,
@@ -40,21 +42,22 @@ pub enum RuschColumnKind {
 }
 
 /// Uma coluna de coeficientes de uma tabela de Rüsch.
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 pub struct RuschColumn {
     /// Rótulo do grupo, preservado cru da planilha (ex.: `"Mxm in Plattenmitte"`).
-    pub group: &'static str,
+    pub group: String,
     /// Letra do coeficiente: `"L"`, `"p"` ou `"p'"`.
-    pub letter: &'static str,
+    pub letter: String,
     /// Relação `t/a` da coluna; `None` quando vale para todo `t/a`.
     pub ta: Option<f64>,
     /// Natureza do coeficiente.
     pub kind: RuschColumnKind,
     /// Valores ao longo de [`RuschTableData::rows`].
     ///
-    /// `None` representa a célula `-` da planilha: o coeficiente não se aplica.
-    /// Não é zero — é ausência declarada.
-    pub values: &'static [Option<f64>],
+    /// `None` representa uma ausência: a célula `-` da planilha (coeficiente não
+    /// se aplica) ou uma célula que a fonte traz como erro/typo. Nunca é zero
+    /// inventado — as ausências anômalas estão listadas em `warnings` no JSON.
+    pub values: Vec<Option<f64>>,
 }
 
 /// Uma tabela de Rüsch extraída do workbook de referência do IME.
@@ -62,31 +65,58 @@ pub struct RuschColumn {
 /// Os coeficientes são dados numéricos crus, sem interpretação de sinal: os
 /// prefixos dos rótulos (`¾`, `(+)`, `-`, `_`) ainda não foram confirmados
 /// contra a fonte original e por isso são preservados como texto.
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
 pub struct RuschTableData {
     /// Nome da planilha de origem (ex.: `"Nr 65.1"`).
-    pub sheet: &'static str,
+    pub sheet: String,
     /// Número da tabela.
     pub number: u32,
     /// Variante da tabela (o `.1`/`.2` do nome), quando existir.
     pub variant: Option<u8>,
     /// Parâmetro do cabeçalho: `"ly/lx"` ou `"l/a"`.
-    pub param: &'static str,
+    pub param: Option<String>,
     /// Valor do parâmetro como está no cabeçalho (ex.: `"2,25"`, `"∞"`).
-    pub ratio_raw: &'static str,
+    pub ratio_raw: Option<String>,
+    /// Valor numérico do parâmetro; `None` para o infinito ou quando ausente.
+    pub ratio: Option<f64>,
     /// `true` quando o parâmetro é infinito.
     pub ratio_is_infinite: bool,
     /// Eixo das linhas (`lx/a`).
-    pub rows: &'static [f64],
+    pub rows: Vec<f64>,
     /// Colunas de coeficientes.
-    pub columns: &'static [RuschColumn],
+    pub columns: Vec<RuschColumn>,
+}
+
+#[derive(Deserialize)]
+struct RuschTablesPayload {
+    tables: Vec<RuschTableData>,
+}
+
+/// Todas as tabelas de Rüsch embarcadas, na ordem do arquivo de dados.
+///
+/// O acervo vem de `data/rusch_tables.json`, embutido no binário em tempo de
+/// compilação e desserializado uma única vez, na primeira chamada.
+///
+/// # Panics
+///
+/// Se o JSON embutido não desserializar. Isso seria um defeito de build: o
+/// arquivo é gerado por `tools/extract_rusch_tables.py` e validado por testes.
+#[must_use]
+pub fn rusch_tables() -> &'static [RuschTableData] {
+    static TABLES: OnceLock<Vec<RuschTableData>> = OnceLock::new();
+    TABLES.get_or_init(|| {
+        let payload: RuschTablesPayload =
+            serde_json::from_str(include_str!("../data/rusch_tables.json"))
+                .expect("tabelas de Rüsch embutidas devem desserializar");
+        payload.tables
+    })
 }
 
 impl RuschTableData {
     /// Localiza uma tabela pelo número e variante.
     #[must_use]
     pub fn find(number: u32, variant: Option<u8>) -> Option<&'static Self> {
-        rusch_data::TABLES
+        rusch_tables()
             .iter()
             .find(|t| t.number == number && t.variant == variant)
     }
@@ -99,7 +129,7 @@ impl RuschTableData {
 
     /// Primeira coluna que casa com grupo e letra.
     #[must_use]
-    pub fn column(&self, group: &str, letter: &str) -> Option<&'static RuschColumn> {
+    pub fn column(&self, group: &str, letter: &str) -> Option<&RuschColumn> {
         self.columns
             .iter()
             .find(|c| c.group == group && c.letter == letter)
@@ -761,13 +791,14 @@ mod tests {
     }
 
     #[test]
-    fn rusch_data_covers_the_extracted_tables() {
-        // Recorte inicial: Nr 1.1, 4.1, 16.1, 99 e 27.1.
-        assert_eq!(rusch_data::TABLES.len(), 5);
-        for table in rusch_data::TABLES {
+    fn rusch_data_covers_the_whole_workbook() {
+        // O workbook do IME tem 186 planilhas de tabela; todas são extraídas.
+        let tables = rusch_tables();
+        assert_eq!(tables.len(), 186);
+        for table in tables {
             assert_eq!(table.rows.len(), 13, "{}", table.sheet);
             assert!(!table.columns.is_empty(), "{}", table.sheet);
-            for column in table.columns {
+            for column in &table.columns {
                 assert_eq!(
                     column.values.len(),
                     table.rows.len(),
@@ -776,6 +807,19 @@ mod tests {
                     column.group
                 );
             }
+        }
+    }
+
+    #[test]
+    fn rusch_table_index_is_unique() {
+        // (number, variant) é a chave pública de busca; precisa ser única.
+        let mut seen = std::collections::HashSet::new();
+        for table in rusch_tables() {
+            assert!(
+                seen.insert((table.number, table.variant)),
+                "identidade duplicada em {}",
+                table.sheet
+            );
         }
     }
 
@@ -813,14 +857,24 @@ mod tests {
     fn infinite_ratio_is_recorded_as_such() {
         let table = RuschTableData::find(1, Some(1)).expect("tabela Nr 1.1");
         assert!(table.ratio_is_infinite);
-        assert_eq!(table.ratio_raw, "∞");
-        assert_eq!(table.param, "ly/lx");
+        assert_eq!(table.ratio_raw.as_deref(), Some("∞"));
+        assert_eq!(table.param.as_deref(), Some("ly/lx"));
+    }
+
+    #[test]
+    fn l_over_a_tables_keep_their_own_parameter() {
+        // Nr 27.x não é parametrizada por ly/lx e sim por l/a — a distinção é
+        // preservada em vez de normalizada silenciosamente.
+        let table = RuschTableData::find(27, Some(1)).expect("tabela Nr 27.1");
+        assert_eq!(table.param.as_deref(), Some("l/a"));
+        assert_eq!(table.ratio_raw.as_deref(), Some("2,25"));
+        assert_eq!(table.ratio, Some(2.25));
     }
 
     #[test]
     fn shear_table_is_addressed_by_number() {
         let shear = RuschTableData::find(99, None).expect("tabela Nr 99");
         assert!(shear.columns.iter().all(|c| c.group.starts_with("Qx")));
-        assert!(RuschTableData::find(12345, None).is_none());
+        assert!(RuschTableData::find(12_345, None).is_none());
     }
 }
