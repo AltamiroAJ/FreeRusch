@@ -54,8 +54,46 @@ e a memória de cálculo declarando suas próprias hipóteses.
 
 | ID | Item | Precisa de |
 |---|---|---|
-| **R2** | Regra normativa de largura efetiva `b_min`/`b_max` e do fator de distribuição transversal θ por faixa de influência | cláusula da NBR 7188:2013 |
 | **R3** | Conferir a lista de recursos do T-Rüsch contra este roadmap | página do fornecedor — na última verificação retornou HTTP 500 |
+
+**Nenhum bloqueio externo impede a v0.1.0.** R1 (tabelas) e R2 (método da carga
+móvel) foram resolvidos; o que resta é integração e engenharia de release.
+
+### R2 — resolvido: método da carga móvel
+
+O método foi obtido nas notas de aula do IME — Prof. Eduardo C. S. Thomaz,
+*Pontes em Concreto Protendido — 20 Lajes do tabuleiro, Método de Rüsch*
+([PDF público](http://aquarius.ime.eb.br/~webde2/prof/ethomaz/conc_protend/20_A_Lajes_Flexao_Rusch.pdf)) —
+que definem exatamente a notação que faltava:
+
+| Símbolo | Significado |
+|---|---|
+| `a` | distância transversal entre rodas (2,00 m no exemplo) |
+| `lx/a` | entrada de linha da tabela |
+| `t` | espraiamento da roda até a meia-espessura da laje: `√(0,20·0,50) + 2·(pav + h/2)` |
+| `t/a` | entrada de coluna da tabela |
+| `L` | coeficiente da parcela de roda (Radduck des SLW von 1,0 t) |
+| `p`, `p'` | coeficientes da parcela de carga uniforme (Gleichlast um SLW) |
+| `φ` | coeficiente de impacto: `1,4 − 0,007·lx` |
+
+Fórmula implementada em `live_load_moments()`:
+
+```
+M = φ · ( P · M_L + q · M_p + q · M_p' )
+```
+
+com `M_L`, `M_p`, `M_p'` interpolados bilinearmente em `(lx/a, t/a)`, primeiro em
+`lx/a` e depois em `t/a`.
+
+**Validação em duas fontes independentes:**
+
+- **carga móvel** — reproduz os seis momentos de `Main!I34..I39` (tabela Nr 65.1,
+  `lx = 7,00 m`, `P = 75 kN`, `q = 5 kN/m²`) com erro máximo de **0,2 %**;
+- **φ e t** — `φ(7,00) = 1,351`, idêntico a `Main!I32`; e `t(0,07; 0,23) = 0,69 m`,
+  idêntico às notas do IME (p. 2).
+
+Resta apenas o significado dos prefixos de rótulo (`¾`, `(+)`, `-`, `_`), que não
+altera os coeficientes numéricos.
 
 ### R1 — extração concluída, integração pendente
 
@@ -88,11 +126,11 @@ tabelas também trazem os **coeficientes fixos do painel** do cabeçalho
 `Main!I24..I29` — o que confirma que os coeficientes de cabeçalho multiplicam
 `q · lx²`. Esse caminho **não** depende de R2.
 
-**Tentativa registrada (negativa) para a carga móvel:** testou-se a hipótese
-`M = j · (L·P + c·q)` (com `c` = `p` ou `p'`) por mínimos quadrados sobre as 13
-linhas × 4 colunas `t/a` × 64 combinações de `p`/`p'`. O melhor ajuste deixa
-resíduo de **39 kN·m/m** e `q` negativo — ou seja, **não** é esse o modelo. A
-carga móvel exige a descrição do método (R2/legenda), não engenharia reversa.
+**Tentativa negativa registrada:** antes de achar as notas do IME, testou-se a
+hipótese `M = j · (L·P + c·q)` (com `c` = `p` ou `p'`) por mínimos quadrados sobre
+as 13 linhas × 4 colunas `t/a` × 64 combinações de `p`/`p'`. O melhor ajuste
+deixava resíduo de **39 kN·m/m** e `q` negativo — o modelo estava errado, e é por
+isso que engenharia reversa não substitui a descrição do método. Ver [R2](#r2--resolvido-método-da-carga-móvel).
 
 **Lacunas registradas na fonte (11, em `warnings` no JSON):** a planilha traz
 células com erro (`=#REF!`, `#VALUE!`), números ilegíveis (`2,.82`, `3,.08`,
@@ -103,28 +141,34 @@ número inventado; conferir contra o documento original antes de usar essas cél
 Falta para fechar R1:
 
 - decidir a semântica dos prefixos de rótulo `¾`, `(+)`, `-`, `_`;
-- o modelo da **carga móvel** (roda + multidão) — ver tentativa negativa acima;
-- **integrar** ao motor: `design_moment` ainda calcula com os coeficientes
+- **integrar** ao motor e à GUI: `design_moment` ainda calcula com os coeficientes
   simplificados de `RuschTable`, e `RUSCH_TABLES_PRELIMINARY` continua `true` de
-  propósito.
+  propósito até a GUI passar a usar as tabelas reais.
 
-**Consequência:** com R1 extraído, o único bloqueio externo restante para a v0.1.0
-confiável é **R2**.
+**Consequência:** não há mais bloqueio externo. Falta a integração (GUI/relatório
+usando as tabelas reais) e a engenharia de release já armada.
 
 ## Domínio de engenharia
 
 | ID | Item | Aceite | Depende |
 |---|---|---|---|
-| D1 | Coeficiente de impacto vertical φ (NBR 7188) aplicado aos esforços | teste com φ explícito e citação da origem no código | — |
+| D1 ✅ | Coeficiente de impacto vertical φ: `1,4 − 0,007·lx` | `impact_coefficient()` com teste em duas fontes (1,351 e 1,38) | — |
 | D2 | Cargas de passeio e passarela: 3,0 kN/m² (geral) e 5,0 kN/m² (elemento direto/passarela) como entradas opcionais | teste de combinação com e sem passeio | — |
-| D3 | `design_moment` passa a usar `VehicleGeometry::lane_count`; remove o cálculo de faixas duplicado hoje em `lib.rs` | teste garantindo uma única regra de contagem de faixas | R2 |
-| D4 | Eliminar `bending_moment`: ele ignora `_l2_over_l1` e fixa `spans=1` e `b=6,0 m`, parecendo genérico sem ser | função removida ou renomeada para exemplo; doctest e README ajustados | — |
-| D5 | Diagrama de momentos: usar a distribuição real por seção **ou** renomear para `envelope_diagram` e rotular como ilustrativo na GUI e no HTML | teste de forma + texto explícito ao usuário | R1 |
-| D6 | `SlabInput` ganha `spans` e `edge`; o HTML declara vãos e condição de borda usados | asserção no HTML contendo vãos e "biapoiada"/"engastada" | — |
-| D7 | Validar `spans` na borda (tabela cobre 1–4 biapoiada e 1–3 engastada) com erro específico | teste para 4 vãos engastados | — |
-| D8 | Roda-paleta: área de contato do pneu e dispersão a 30° na espessura | teste contra exemplo manual | R2 |
-| D9 | Revisar `load_per_lane_knm` à luz de R2 (hoje é uma simplificação de largura efetiva) | coeficientes documentados com origem | R2 |
-| D10 | Vãos múltiplos: avaliar posicionamento crítico do trem-tipo por vão | estudo registrado + teste | R1 |
+| D3 | `design_moment` passa a usar `VehicleGeometry::lane_count`; remove o cálculo de faixas duplicado | teste garantindo uma única regra de contagem | — |
+| D4 | Eliminar `bending_moment`: ignora `_l2_over_l1` e fixa `spans=1`, `b=6,0 m` | função removida/renomeada; doctest e README ajustados | — |
+| D5 | Diagrama de momentos: distribuição real por seção **ou** renomear para `envelope_diagram` e rotular como ilustrativo | teste + texto explícito na GUI e no HTML | — |
+| D6 | `SlabInput` ganha `spans` e `edge`; o HTML declara vãos e condição de borda | asserção no HTML | — |
+| D7 | Validar `spans` na borda com erro específico | teste para 4 vãos engastados | — |
+| D8 ✅ | Espraiamento da roda: contato 0,20 × 0,50 m → `t = 0,32 + 2·(pav + h/2)` | `load_spread_width_m()` devolve 0,69 m nas notas do IME | — |
+| D9 ✅ | Modelo da carga móvel: `M = φ·(P·M_L + q·M_p + q·M_p')` | `live_load_moments()` dentro de 0,2 % do exemplo do workbook | — |
+| D10 | Vãos múltiplos: posicionamento crítico do trem-tipo por vão | estudo + teste | — |
+| D11 | **Integrar** GUI e relatório às tabelas reais: escolha da tabela (`Nr N.M`), espessuras, pavimento, carga permanente | GUI calcula pelos caminhos validados e o aviso de preliminar desaparece | — |
+
+> **Divergência registrada (D8).** O prompt da Fase 2/4 fala em dispersão a
+> **30°**; as notas do IME — que reproduzem o exemplo do workbook — usam
+> **45°** (`2·(pav + h/2)`, ou seja, um afastamento horizontal igual à
+> profundidade). A implementação segue a fonte validada. Se a intenção for 30°,
+> basta trocar o fator em `load_spread_width_m()` e recalibrar os testes.
 
 ## Infraestrutura e reprodutibilidade
 
@@ -149,16 +193,17 @@ confiável é **R2**.
 | ID | Item | Aceite |
 |---|---|---|
 | X1 | Tag `v0.1.0` + GitHub Release com binários das 3 plataformas e SHA-256 | `cargo-dist` ou artifacts no `ci.yml` |
-| X2 | `RUSCH_TABLES_PRELIMINARY = false` — **somente** depois de R1 | avisos somem da GUI e do HTML |
+| X2 | `RUSCH_TABLES_PRELIMINARY = false` — **somente** depois de D11 | avisos somem da GUI e do HTML |
 
 ### Critério de saída da v0.1.0
 
-1. R1 e R2 fechados; D3, D8 e D9 implementados a partir deles.
-2. D1, D2, D4, D6, D7 concluídos com testes.
+1. R1 e R2 fechados ✅ (tabelas embarcadas; método da carga móvel validado).
+2. D1, D8 e D9 concluídos ✅; D2, D4, D6 e D7 concluídos com testes.
 3. D5 resolvido (real ou renomeado e rotulado).
-4. I1 e I4 concluídos; CI verde nas 3 plataformas com `--locked`.
-5. CHANGELOG publicado e tag `v0.1.0` com binários.
-6. Nenhum aviso de "preliminar" visível na GUI nem no HTML.
+4. **D11** concluído: GUI e relatório calculando pelas tabelas reais.
+5. I1 e I4 concluídos; CI verde nas 3 plataformas com `--locked`.
+6. CHANGELOG publicado e tag `v0.1.0` com binários.
+7. Nenhum aviso de "preliminar" visível na GUI nem no HTML.
 
 ---
 
@@ -208,12 +253,11 @@ Origem: [phase-4-consolidation-v1](prompts/phase-4-consolidation-v1.md).
 
 | ID | Bloqueio | O que destrava |
 |---|---|---|
-| R2 | `b_min`/`b_max` e θ | trecho da NBR 7188:2013 |
 | R3 | Lista de recursos do T-Rüsch | página do fornecedor acessível, ou sua descrição |
-| R1 | Semântica dos prefixos `¾`/`(+)`/`-`/`_` nos rótulos das tabelas | confirmação no documento original (não bloqueia a extração) |
+| R1 | Semântica dos prefixos `¾`/`(+)`/`-`/`_` nos rótulos das tabelas | confirmação no documento original (não bloqueia a extração nem o cálculo) |
 
-Enquanto R2 estiver aberto, o restante da v0.1.0 pode avançar — mas o release não
-fecha.
+Nenhum bloqueio externo impede a v0.1.0: falta apenas a integração D11 e a
+engenharia de release.
 
 # Histórico de fases
 

@@ -195,6 +195,221 @@ pub fn uniform_load_moments(
         .collect())
 }
 
+/// Coeficiente de impacto vertical da NBR 7188:2013.
+///
+/// `φ = 1,4 − 0,007 · lx`, com `lx` em metros.
+///
+/// Validado em dois pontos independentes:
+/// - `lx = 7,00 m → 1,351`, o valor que o workbook traz na aba `Main!I32`;
+/// - `lx = 2,70 m → 1,38`, o valor das notas de aula do IME (p. 2).
+///
+/// # Erros
+///
+/// [`RuschError::InvalidDimension`] se `lx_m` não for finito e positivo.
+pub fn impact_coefficient(lx_m: f64) -> Result<f64, RuschError> {
+    if !(lx_m.is_finite() && lx_m > 0.0) {
+        return Err(RuschError::InvalidDimension {
+            name: "lx_m",
+            value: lx_m,
+        });
+    }
+    Ok(1.4 - 0.007 * lx_m)
+}
+
+/// Largura de espraiamento da carga de roda até a meia-espessura da laje.
+///
+/// `t = √(0,20 · 0,50) + 2 · (pavimento + laje/2)`, que é a área de contato
+/// 0,20 m × 0,50 m convertida em quadrado equivalente e distribuída a 45° até a
+/// meia-espessura. Exemplo das notas do IME: pavimento 0,07 m e laje 0,23 m
+/// resultam em `t = 0,69 m`.
+///
+/// # Erros
+///
+/// [`RuschError::InvalidDimension`] se alguma espessura não for finita e não
+/// negativa.
+pub fn load_spread_width_m(pavement_m: f64, slab_m: f64) -> Result<f64, RuschError> {
+    for (name, value) in [("pavement_m", pavement_m), ("slab_m", slab_m)] {
+        if !(value.is_finite() && value >= 0.0) {
+            return Err(RuschError::InvalidDimension { name, value });
+        }
+    }
+    Ok((0.20_f64 * 0.50).sqrt() + 2.0 * (pavement_m + slab_m / 2.0))
+}
+
+/// Resultantes conhecidas, em ordem de preferência de casamento (mais longa
+/// primeiro) para lidar com rótulos sujos como `-Mxe` ou `¾ Myr`.
+const RESULTANT_KEYS: [&str; 9] = ["Mxm", "Mym", "Mxr", "Mxe", "Mye", "Myr", "Mx", "My", "Qx"];
+
+/// Remove prefixos/sufixos não alfanuméricos dos rótulos crus da planilha.
+fn normalized_label(label: &str) -> String {
+    label.chars().filter(|c| c.is_alphanumeric()).collect()
+}
+
+/// Identifica a resultante de um rótulo cru de grupo.
+fn resultant_key(label: &str) -> Option<&'static str> {
+    let normalized = normalized_label(label);
+    RESULTANT_KEYS
+        .iter()
+        .find(|key| normalized.starts_with(**key))
+        .copied()
+}
+
+/// Interpolação linear na coluna `rows` (`lx/a`).
+///
+/// Células `-` entram como contribuição nula, que é o significado da ausência
+/// nessas colunas.
+fn interpolate_rows(values: &[Option<f64>], rows: &[f64], target: f64) -> Option<f64> {
+    let point = |index: usize| values.get(index).copied().flatten().unwrap_or(0.0);
+    for index in 0..rows.len().saturating_sub(1) {
+        let (x0, x1) = (rows[index], rows[index + 1]);
+        if (x0..=x1).contains(&target) {
+            let span = x1 - x0;
+            let weight = if span.abs() < f64::EPSILON {
+                0.0
+            } else {
+                (target - x0) / span
+            };
+            return Some(point(index) + weight * (point(index + 1) - point(index)));
+        }
+    }
+    None
+}
+
+/// Coeficiente da parcela de roda (`L`), interpolado em `lx/a` e depois em `t/a`.
+fn wheel_coefficient(
+    table: &RuschTableData,
+    resultant: &str,
+    lx_over_a: f64,
+    t_over_a: f64,
+) -> Option<f64> {
+    let mut columns: Vec<&RuschColumn> = table
+        .columns
+        .iter()
+        .filter(|column| {
+            column.letter == "L"
+                && column.ta.is_some()
+                && resultant_key(&column.group) == Some(resultant)
+        })
+        .collect();
+    if columns.is_empty() {
+        return None;
+    }
+    columns.sort_by(|a, b| a.ta.partial_cmp(&b.ta).unwrap_or(std::cmp::Ordering::Equal));
+
+    let ta_values: Vec<f64> = columns.iter().filter_map(|c| c.ta).collect();
+    let per_column: Vec<f64> = columns
+        .iter()
+        .map(|c| interpolate_rows(&c.values, &table.rows, lx_over_a))
+        .collect::<Option<Vec<_>>>()?;
+
+    for index in 0..ta_values.len().saturating_sub(1) {
+        let (t0, t1) = (ta_values[index], ta_values[index + 1]);
+        if (t0..=t1).contains(&t_over_a) {
+            let span = t1 - t0;
+            let weight = if span.abs() < f64::EPSILON {
+                0.0
+            } else {
+                (t_over_a - t0) / span
+            };
+            return Some(per_column[index] + weight * (per_column[index + 1] - per_column[index]));
+        }
+    }
+    None
+}
+
+/// Coeficiente da parcela de carga uniforme (`p` ou `p'`), válido para todo `t/a`.
+fn uniform_coefficient(
+    table: &RuschTableData,
+    resultant: &str,
+    letter: &str,
+    lx_over_a: f64,
+) -> Option<f64> {
+    table
+        .columns
+        .iter()
+        .filter(|column| column.letter == letter && resultant_key(&column.group) == Some(resultant))
+        .find_map(|column| interpolate_rows(&column.values, &table.rows, lx_over_a))
+}
+
+/// Momentos fletores por metro devidos à **carga móvel** de um trem-tipo.
+///
+/// Implementa o método das tabelas de Rüsch como descrito nas notas de aula do
+/// IME (Prof. Eduardo C. S. Thomaz, "Lajes do tabuleiro — Método de Rüsch"):
+///
+/// ```text
+/// M = φ · ( P · M_L + q · M_p + q · M_p' )
+/// ```
+///
+/// com `φ` de [`impact_coefficient`], `P` a carga por roda, `q` a carga
+/// uniforme da pista e `M_L`, `M_p`, `M_p'` interpolados na tabela em
+/// `(lx/a, t/a)`, onde `a` é a distância transversal entre rodas e `t` vem de
+/// [`load_spread_width_m`].
+///
+/// A interpolação é bilinear: primeiro em `lx/a`, depois em `t/a`.
+///
+/// # Validação
+///
+/// Reproduz o exemplo resolvido do workbook (`Main!I34..I39`) com a tabela
+/// Nr 65.1 dentro de 0,2 % nos seis momentos: `76,00 · 38,68 · 144,40 ·
+/// 131,55 · 48,25 · 50,79 kN·m/m`.
+///
+/// # Erros
+///
+/// Dimensão inválida, ou ausência dos coeficientes da resultante pedida na
+/// tabela (retorna erro em vez de zero silencioso).
+pub fn live_load_moments(
+    table: &RuschTableData,
+    wheel_load_kn: f64,
+    uniform_load_kn_m2: f64,
+    lx_m: f64,
+    pavement_m: f64,
+    slab_m: f64,
+    wheel_spacing_m: f64,
+) -> Result<Vec<(String, f64)>, RuschError> {
+    for (name, value) in [
+        ("wheel_load_kn", wheel_load_kn),
+        ("uniform_load_kn_m2", uniform_load_kn_m2),
+        ("lx_m", lx_m),
+        ("wheel_spacing_m", wheel_spacing_m),
+    ] {
+        if !(value.is_finite() && value > 0.0) {
+            return Err(RuschError::InvalidDimension { name, value });
+        }
+    }
+    let impact = impact_coefficient(lx_m)?;
+    let spread = load_spread_width_m(pavement_m, slab_m)?;
+    let lx_over_a = lx_m / wheel_spacing_m;
+    let t_over_a = spread / wheel_spacing_m;
+
+    // Resultantes presentes como coeficiente de roda, na ordem do arquivo.
+    let mut resultants: Vec<&'static str> = Vec::new();
+    for column in &table.columns {
+        if column.letter != "L" || column.ta.is_none() {
+            continue;
+        }
+        if let Some(key) = resultant_key(&column.group)
+            && !resultants.contains(&key)
+        {
+            resultants.push(key);
+        }
+    }
+
+    let mut moments = Vec::with_capacity(resultants.len());
+    for resultant in resultants {
+        let wheel = wheel_coefficient(table, resultant, lx_over_a, t_over_a).ok_or_else(|| {
+            RuschError::TableLookup {
+                sheet: table.sheet.clone(),
+                detail: format!("{resultant}: lx/a = {lx_over_a:.3}, t/a = {t_over_a:.3}"),
+            }
+        })?;
+        let positive = uniform_coefficient(table, resultant, "p", lx_over_a).unwrap_or(0.0);
+        let negative = uniform_coefficient(table, resultant, "p'", lx_over_a).unwrap_or(0.0);
+        let moment = impact * (wheel_load_kn * wheel + uniform_load_kn_m2 * (positive + negative));
+        moments.push((resultant.to_string(), moment));
+    }
+    Ok(moments)
+}
+
 /// Erros do motor de cálculo Rüsch.
 #[derive(Debug, Clone, PartialEq, Error)]
 pub enum RuschError {
@@ -221,6 +436,14 @@ pub enum RuschError {
     UnknownConcreteClass {
         /// Nome recebido.
         name: String,
+    },
+    /// A tabela de Rüsch não cobre o ponto pedido, ou não traz a resultante.
+    #[error("tabela {sheet} não cobre o ponto pedido: {detail}")]
+    TableLookup {
+        /// Planilha de origem da tabela.
+        sheet: String,
+        /// Resultante e relações `lx/a`, `t/a` solicitadas.
+        detail: String,
     },
 }
 
@@ -974,6 +1197,74 @@ mod tests {
         assert!(matches!(
             uniform_load_moments(table, 10.0, -1.0),
             Err(RuschError::InvalidDimension { name: "lx_m", .. })
+        ));
+    }
+
+    #[test]
+    fn impact_coefficient_matches_both_sources() {
+        // Workbook, aba "Main": lx = 7,00 m -> phi = 1,351 (Main!I32).
+        assert!((impact_coefficient(7.0).expect("cálculo") - 1.351).abs() < 1e-9);
+        // Notas do IME, p.2: lx = 2,70 m -> phi = 1,38 (as notas arredondam
+        // para duas casas; o valor exato da fórmula é 1,3811).
+        assert!((impact_coefficient(2.70).expect("cálculo") - 1.38).abs() < 0.005);
+    }
+
+    #[test]
+    fn load_spread_width_matches_course_notes() {
+        // Notas do IME, p.2: pavimento 7 cm, laje 23 cm -> t = 0,69 m.
+        assert!((load_spread_width_m(0.07, 0.23).expect("cálculo") - 0.69).abs() < 0.005);
+    }
+
+    #[test]
+    fn live_load_moments_reproduce_workbook_example() {
+        // Aba "Main": tabela Nr 65.1 (ly/lx = 4), lx = 7,00 m, laje 26 cm,
+        // pavimento 7 cm, a = 2,00 m, TB-450 (P = 75 kN/roda, q = 5 kN/m²).
+        // Alvos em Main!I34..I39 (kN·m/m, sinal absoluto).
+        let table = RuschTableData::find(65, Some(1)).expect("tabela Nr 65.1");
+        let moments = live_load_moments(table, 75.0, 5.0, 7.0, 0.07, 0.26, 2.0).expect("cálculo");
+
+        let moment = |name: &str| {
+            moments
+                .iter()
+                .find(|(n, _)| n == name)
+                .map(|(_, value)| *value)
+                .unwrap_or_else(|| panic!("resultante {name} ausente"))
+        };
+
+        for (name, expected, cell) in [
+            ("Mxm", 76.0005, "Main!I34"),
+            ("Mym", 38.6751, "Main!I35"),
+            ("Mxr", 144.401, "Main!I36"),
+            ("Mxe", 131.548, "Main!I37"),
+            ("Mye", 48.2468, "Main!I38"),
+            ("Myr", 50.7861, "Main!I39"),
+        ] {
+            let computed = moment(name);
+            let relative = (computed.abs() - expected).abs() / expected;
+            assert!(
+                relative < 0.005,
+                "{name} ({cell}): calculado {computed:.4}, esperado {expected:.4} (erro {:.2}%)",
+                relative * 100.0
+            );
+        }
+    }
+
+    #[test]
+    fn live_load_moments_reject_invalid_input() {
+        let table = RuschTableData::find(65, Some(1)).expect("tabela Nr 65.1");
+        assert!(matches!(
+            live_load_moments(table, 0.0, 5.0, 7.0, 0.07, 0.26, 2.0),
+            Err(RuschError::InvalidDimension {
+                name: "wheel_load_kn",
+                ..
+            })
+        ));
+        assert!(matches!(
+            live_load_moments(table, 75.0, 5.0, 7.0, 0.07, 0.26, 0.0),
+            Err(RuschError::InvalidDimension {
+                name: "wheel_spacing_m",
+                ..
+            })
         ));
     }
 }
