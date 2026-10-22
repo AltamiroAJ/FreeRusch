@@ -95,7 +95,7 @@ assert_eq!(column.values[i], Some(0.52));
 > (`crates/freerusch-core/data/rusch_tables.json`), com 56.693 coeficientes e 11
 > lacunas registradas para conferência manual. O motor de cálculo ainda usa os
 > coeficientes simplificados até a regra de distribuição `b_min`/θ ser fechada —
-> ver [`docs/ROADMAP.md`](docs/ROADMAP.md#r1--em-andamento-fonte-obtida).
+> ver [`docs/ROADMAP.md`](docs/ROADMAP.md#r1--extração-concluída-integração-pendente).
 
 ## Roadmap
 
