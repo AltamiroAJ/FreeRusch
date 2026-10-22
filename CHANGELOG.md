@@ -9,12 +9,23 @@ O escopo de cada release está em [docs/ROADMAP.md](docs/ROADMAP.md).
 
 ## [Não publicado] — destino: v0.1.0
 
-Nada foi publicado ainda: não existe tag no repositório. As entradas abaixo estão
-nas branches `feat/ruesch-tables-nbr7188-gui` (PR #11) e `feat/nbr7188-train-loads`,
-e entram em `0.1.0` quando o roadmap de release fechar.
+Nada foi publicado ainda: não existe tag no repositório. O histórico já está na
+`main` e nas branches de fase; o release `0.1.0` fecha quando o roadmap de release
+fechar (ver [docs/ROADMAP.md](docs/ROADMAP.md)).
 
 ### Adicionado
 
+- **Infraestrutura de release da família Craft.** `.github/workflows/release.yml`
+  como chamador fino do pipeline compartilhado `storytold/craft-common-actions`
+  (gatilho: branch `release`), `packaging/env.sh` como fonte única da versão e
+  `assets/app-icon/` documentando os ícones exigidos por plataforma.
+- **Licenciamento duplo e atribuição.** `LICENSE-MIT` + `LICENSE-APACHE`,
+  `NOTICE`, e `ATTRIBUTION.md` gerado de `cargo metadata`
+  (`tools/generate_attribution.py`), com a proveniência das tabelas embarcadas.
+- **`AGENTS.md` / `CLAUDE.md`**, `clippy.toml` e `Cargo.lock` versionado,
+  alinhando o repositório às convenções de CI e reprodutibilidade da família.
+- **Tabelas de Rüsch** em `freerusch-core` (`RuschTableData`, `RuschColumn`,
+  `RuschColumnKind`) com extrator `tools/extract_rusch_tables.py`.
 - **GUI com abas.** Janela com as abas *Inputs*, *Results* e *Report*, construídas
   sobre os primitivos de `craft_ui::tabs` (`fit` + `Tab::show_at`), já que a
   `craft-ui` fornece o átomo de aba e a matemática de larguras, mas não um

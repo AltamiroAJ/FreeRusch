@@ -11,7 +11,7 @@ members = [
 version = "0.1.0"
 edition = "2024"
 license = "MIT OR Apache-2.0"
-repository = "https://github.com/storytold/freerusch"
+repository = "https://github.com/AltamiroAJ/FreeRusch"
 
 [workspace.dependencies]
 # Bibliotecas da família Craft, fixadas no commit mais recente do branch padrão

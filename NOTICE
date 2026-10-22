@@ -1,0 +1,23 @@
+FreeRusch
+Copyright (c) 2026 Altamiro Allebrandt Junior and the FreeRusch contributors.
+Licensed under the MIT License or the Apache License, Version 2.0, at your option
+(LICENSE-MIT, LICENSE-APACHE).
+
+FreeRusch is an independent, clean-room implementation of the Rüsch method for
+bridge slab design. It does not include, link to, or copy code or data from
+commercial software. T-Rüsch (TQS) is referenced only as a functional
+description of the engineering domain, never as a source.
+
+Normative references
+
+The Brazilian standards NBR 7188:2013 and NBR 6118:2023 are cited as engineering
+references. Their text is not distributed with this software, and no excerpt of
+them is reproduced in the source tree.
+
+Third-party material
+
+The embedded Rüsch coefficient tables come from an academic workbook whose
+provenance, checksum and extraction procedure are recorded in ATTRIBUTION.md.
+Runtime dependencies are listed there as well.
+
+The FreeRusch name and logo are not covered by the licenses above.

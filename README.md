@@ -117,6 +117,33 @@ Resumo:
 > As cargas de multidão seguem a NBR 7188:2013: **5,0 kN/m²** (TB-450) e
 > **4,0 kN/m²** (TB-240), atuando em conjunto com o veículo-tipo.
 
+## Distribuição e release
+
+O FreeRusch segue o padrão de release da família Craft: o workflow
+[`.github/workflows/release.yml`](.github/workflows/release.yml) é um chamador fino
+que delega ao pipeline compartilhado `storytold/craft-common-actions`, disparado
+por push na branch `release`. Ele produz macOS universal (DMG assinado e
+notarizado), Windows MSI (x64/x86/ARM64), Linux AppImage/deb/rpm/tar.gz, Flatpak,
+Arch, RISC-V e, opcionalmente, wasm — e publica um *draft release* com
+`SHA256SUMS.txt`.
+
+A versão vem de `[workspace.package] version` no `Cargo.toml` raiz, lida por
+[`packaging/env.sh`](packaging/env.sh) e validada como semver pelo pipeline.
+
+> **Pendências para o primeiro release assinado:** os segredos de assinatura
+> (Apple Developer ID + notarização, Azure Trusted Signing) ainda não estão
+> configurados no ambiente `release`, e o ícone do aplicativo ainda não foi
+> fornecido — ver [`assets/app-icon/README.md`](assets/app-icon/README.md). Até
+> lá, o pipeline roda apenas como *draft* de teste com `workflow_dispatch`.
+
+Convenções de desenvolvimento, gate de qualidade e proveniência dos dados estão
+em [`AGENTS.md`](AGENTS.md).
+
 ## Licença
 
-MIT OR Apache-2.0 (ver `LICENSE`).
+MIT **ou** Apache-2.0, à sua escolha — ver [`LICENSE-MIT`](LICENSE-MIT) e
+[`LICENSE-APACHE`](LICENSE-APACHE).
+
+Material de terceiros, referências normativas e a proveniência das tabelas de
+Rüsch embarcadas estão em [`NOTICE`](NOTICE) e
+[`ATTRIBUTION.md`](ATTRIBUTION.md).

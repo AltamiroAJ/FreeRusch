@@ -1,0 +1,7 @@
+# Clippy configuration for the FreeRusch workspace.
+# Tests may unwrap/expect freely; production code is expected to surface typed errors.
+
+allow-unwrap-in-tests = true
+allow-expect-in-tests = true
+allow-panic-in-tests = true
+allow-indexing-slicing-in-tests = true
