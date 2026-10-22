@@ -7,11 +7,11 @@ projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 
 O escopo de cada release está em [docs/ROADMAP.md](docs/ROADMAP.md).
 
-## [Não publicado] — destino: v0.1.0
+## [0.1.0] — 2026-10-22
 
-Nada foi publicado ainda: não existe tag no repositório. O histórico já está na
-`main` e nas branches de fase; o release `0.1.0` fecha quando o roadmap de release
-fechar (ver [docs/ROADMAP.md](docs/ROADMAP.md)).
+Primeiro release público. O binário de Windows x86_64 sai como artefato desta tag;
+instaladores, assinatura de código e pacotes para as demais plataformas ficam para
+a próxima versão (ver [docs/ROADMAP.md](docs/ROADMAP.md)).
 
 ### Adicionado
 
@@ -89,9 +89,11 @@ fechar (ver [docs/ROADMAP.md](docs/ROADMAP.md)).
 
 ### Notas
 
-- 30 testes automatizados; `cargo fmt --check`, `cargo clippy -D warnings`,
-  `cargo test --workspace` e `cargo build --workspace` verdes em Linux, Windows e
-  macOS.
-- As tabelas completas de Rüsch e a regra de `b_min`/`b_max` com o fator θ seguem
-  bloqueadas por falta de fonte normativa — ver
-  [Bloqueios](docs/ROADMAP.md#bloqueios).
+- 38 testes automatizados: 21 no core, 11 no projeto, 5 no relatório e 1 doctest.
+- Binários de release gerados e verificados em Windows x86_64 e Linux x86_64
+  (`cargo build --release --locked`).
+- O executável do Windows não é assinado e não carrega metadados de versão; ambos
+  dependem de certificado de assinatura e de um recurso de build.
+- Bloqueios restantes, nenhum deles com efeito sobre o cálculo: a lista de recursos
+  do T-Rüsch (R3) e a semântica dos prefixos `¾`/`(+)`/`-`/`_` nos rótulos das
+  tabelas (R1) — ver [Bloqueios](docs/ROADMAP.md#bloqueios).
