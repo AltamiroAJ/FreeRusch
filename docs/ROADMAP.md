@@ -77,7 +77,22 @@ rótulos de coluna preservados **crus**; célula `-` vira ausência, nunca `0,0`
 O JSON é embutido com `include_str!` e desserializado uma vez em `rusch_tables()`.
 
 **Estado:** **186 de 186 tabelas** embarcadas — 56.693 coeficientes, 13 linhas por
-tabela, índices `(número, variante)` únicos e verificados por teste.
+tabela, índices `(número, variante)` únicos e verificados por teste. 181 das 186
+tabelas também trazem os **coeficientes fixos do painel** do cabeçalho
+(`Mxm = 0,063`, …), que antes ficavam de fora da extração.
+
+**Validado contra o exemplo resolvido do workbook (aba `Main`):** o caminho de
+**carga permanente** foi reproduzido célula a célula. Para a tabela Nr 65.1 com
+`lx = 7,00 m` e `q = 10,5209 kN/m²`, `uniform_load_moments()` devolve exatamente
+`32,478 · 5,67077 · 32,478 · 64,4406 · 45,8817 · 10,3105` — os seis valores de
+`Main!I24..I29` — o que confirma que os coeficientes de cabeçalho multiplicam
+`q · lx²`. Esse caminho **não** depende de R2.
+
+**Tentativa registrada (negativa) para a carga móvel:** testou-se a hipótese
+`M = j · (L·P + c·q)` (com `c` = `p` ou `p'`) por mínimos quadrados sobre as 13
+linhas × 4 colunas `t/a` × 64 combinações de `p`/`p'`. O melhor ajuste deixa
+resíduo de **39 kN·m/m** e `q` negativo — ou seja, **não** é esse o modelo. A
+carga móvel exige a descrição do método (R2/legenda), não engenharia reversa.
 
 **Lacunas registradas na fonte (11, em `warnings` no JSON):** a planilha traz
 células com erro (`=#REF!`, `#VALUE!`), números ilegíveis (`2,.82`, `3,.08`,
@@ -88,11 +103,10 @@ número inventado; conferir contra o documento original antes de usar essas cél
 Falta para fechar R1:
 
 - decidir a semântica dos prefixos de rótulo `¾`, `(+)`, `-`, `_`;
-- **integrar** as tabelas ao motor: `design_moment` ainda calcula com os
-  coeficientes simplificados de `RuschTable`, e `RUSCH_TABLES_PRELIMINARY`
-  continua `true` de propósito. A integração depende de **R2** (regra de
-  `b_min`/θ), sem a qual o momento resultante estaria errado mesmo com a tabela
-  certa.
+- o modelo da **carga móvel** (roda + multidão) — ver tentativa negativa acima;
+- **integrar** ao motor: `design_moment` ainda calcula com os coeficientes
+  simplificados de `RuschTable`, e `RUSCH_TABLES_PRELIMINARY` continua `true` de
+  propósito.
 
 **Consequência:** com R1 extraído, o único bloqueio externo restante para a v0.1.0
 confiável é **R2**.

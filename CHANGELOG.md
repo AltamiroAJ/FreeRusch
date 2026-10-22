@@ -29,6 +29,10 @@ fechar (ver [docs/ROADMAP.md](docs/ROADMAP.md)).
   com extrator `tools/extract_rusch_tables.py`. Células `-` viram ausência e
   erros/typos da planilha ficam registrados em `warnings` em vez de virarem
   número.
+- **Momentos de carga permanente a partir das tabelas.** `uniform_load_moments()`
+  usa os coeficientes fixos do painel (`M = k · q · lx²`). Reproduz o exemplo
+  resolvido do workbook (aba `Main`, tabela Nr 65.1) nos seis momentos, com teste
+  que cita as células de origem.
 - **GUI com abas.** Janela com as abas *Inputs*, *Results* e *Report*, construídas
   sobre os primitivos de `craft_ui::tabs` (`fit` + `Tab::show_at`), já que a
   `craft-ui` fornece o átomo de aba e a matemática de larguras, mas não um

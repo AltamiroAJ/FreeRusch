@@ -60,6 +60,18 @@ pub struct RuschColumn {
     pub values: Vec<Option<f64>>,
 }
 
+/// Coeficiente fixo do painel para carga uniforme em toda a laje.
+///
+/// Vem do cabeçalho da tabela (ex.: `Mxm = 0,063`) e vale para qualquer carga
+/// uniformemente distribuída: `M = k · q · lx²`.
+#[derive(Debug, Clone, PartialEq, Deserialize)]
+pub struct PanelCoefficient {
+    /// Nome da resultante (`"Mxm"`, `"Mye"`, ...).
+    pub name: String,
+    /// Coeficiente adimensional.
+    pub value: f64,
+}
+
 /// Uma tabela de Rüsch extraída do workbook de referência do IME.
 ///
 /// Os coeficientes são dados numéricos crus, sem interpretação de sinal: os
@@ -85,6 +97,13 @@ pub struct RuschTableData {
     pub rows: Vec<f64>,
     /// Colunas de coeficientes.
     pub columns: Vec<RuschColumn>,
+    /// Coeficientes da carga uniforme em todo o painel (cabeçalho da tabela).
+    pub panel_coefficients: Vec<PanelCoefficient>,
+    /// Classe de ponte declarada no cabeçalho (ex.: `"Brückenklasse 30t bis 60t"`).
+    pub bridge_class: Option<String>,
+    /// Nota do cabeçalho sobre a carga uniforme de referência
+    /// (ex.: `"Gleichlast um SLW von 1 t.m2"`).
+    pub uniform_reference: Option<String>,
 }
 
 #[derive(Deserialize)]
@@ -134,6 +153,46 @@ impl RuschTableData {
             .iter()
             .find(|c| c.group == group && c.letter == letter)
     }
+}
+
+/// Momentos fletores por metro devidos a uma carga uniforme `q` em **todo** o
+/// painel.
+///
+/// Usa os coeficientes fixos do cabeçalho da tabela: `M = k · q · lx²`. É o
+/// caminho validado contra o exemplo resolvido do workbook (aba `Main`): tabela
+/// Nr 65.1, `lx = 7,00 m`, `q = 10,5209 kN/m²` reproduz os seis momentos de
+/// carga permanente célula a célula.
+///
+/// Retorna pares `(resultante, momento)` na ordem da tabela. O sinal segue a
+/// tabela (positivo); a convenção de face tracionada é do chamador.
+///
+/// # Erros
+///
+/// [`RuschError::InvalidDimension`] se `q_kn_m2` ou `lx_m` não forem finitos e
+/// positivos.
+pub fn uniform_load_moments(
+    table: &RuschTableData,
+    q_kn_m2: f64,
+    lx_m: f64,
+) -> Result<Vec<(String, f64)>, RuschError> {
+    if !(q_kn_m2.is_finite() && q_kn_m2 > 0.0) {
+        return Err(RuschError::InvalidDimension {
+            name: "q_kn_m2",
+            value: q_kn_m2,
+        });
+    }
+    if !(lx_m.is_finite() && lx_m > 0.0) {
+        return Err(RuschError::InvalidDimension {
+            name: "lx_m",
+            value: lx_m,
+        });
+    }
+    let factor = q_kn_m2 * lx_m * lx_m;
+    Ok(table
+        .panel_coefficients
+        .iter()
+        .map(|k| (k.name.clone(), k.value * factor))
+        .collect())
 }
 
 /// Erros do motor de cálculo Rüsch.
@@ -876,5 +935,45 @@ mod tests {
         let shear = RuschTableData::find(99, None).expect("tabela Nr 99");
         assert!(shear.columns.iter().all(|c| c.group.starts_with("Qx")));
         assert!(RuschTableData::find(12_345, None).is_none());
+    }
+
+    #[test]
+    fn uniform_load_moments_reproduce_workbook_example() {
+        // Aba "Main" do workbook, exemplo resolvido: laje central, tabela Nr 65.1
+        // (ly/lx = 4), lx = 7,00 m e carga permanente total q = 10,5209 kN/m².
+        // Main!I24..I29 = 32,478 · 5,67077 · 32,478 · -64,4406 · -45,8817 · 10,3105
+        let table = RuschTableData::find(65, Some(1)).expect("tabela Nr 65.1");
+        let moments = uniform_load_moments(table, 10.5209, 7.0).expect("cálculo");
+
+        let moment = |name: &str| {
+            moments
+                .iter()
+                .find(|(n, _)| n == name)
+                .map(|(_, value)| *value)
+                .unwrap_or_else(|| panic!("resultante {name} ausente"))
+        };
+
+        assert!((moment("Mxm") - 32.478).abs() < 1e-3, "Main!I24");
+        assert!((moment("Mym") - 5.67077).abs() < 1e-3, "Main!I25");
+        assert!((moment("Mxr") - 32.478).abs() < 1e-3, "Main!I26");
+        assert!((moment("Mxe") - 64.4406).abs() < 1e-3, "Main!I27");
+        assert!((moment("Mye") - 45.8817).abs() < 1e-3, "Main!I28");
+        assert!((moment("Myr") - 10.3105).abs() < 1e-3, "Main!I29");
+    }
+
+    #[test]
+    fn uniform_load_moments_reject_invalid_input() {
+        let table = RuschTableData::find(65, Some(1)).expect("tabela Nr 65.1");
+        assert!(matches!(
+            uniform_load_moments(table, 0.0, 7.0),
+            Err(RuschError::InvalidDimension {
+                name: "q_kn_m2",
+                ..
+            })
+        ));
+        assert!(matches!(
+            uniform_load_moments(table, 10.0, -1.0),
+            Err(RuschError::InvalidDimension { name: "lx_m", .. })
+        ));
     }
 }

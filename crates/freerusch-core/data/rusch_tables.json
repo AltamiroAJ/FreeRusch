@@ -506,6 +506,18 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.125
+        },
+        {
+          "name": "Mym",
+          "value": 0.0208
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -797,6 +809,18 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.125
+        },
+        {
+          "name": "Mym",
+          "value": 0.0208
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": [
         {
           "cell": "header",
@@ -1666,6 +1690,38 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxr",
+          "value": 0.125
+        },
+        {
+          "name": "My",
+          "value": 0.0
+        },
+        {
+          "name": "My",
+          "value": 0.0131
+        },
+        {
+          "name": "Mx",
+          "value": 0.125
+        },
+        {
+          "name": "My",
+          "value": 0.0208
+        },
+        {
+          "name": "Mx",
+          "value": 0.125
+        },
+        {
+          "name": "My",
+          "value": 0.0208
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -2507,6 +2563,38 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxr",
+          "value": 0.125
+        },
+        {
+          "name": "My",
+          "value": 0.0
+        },
+        {
+          "name": "My",
+          "value": 0.0131
+        },
+        {
+          "name": "Mx",
+          "value": 0.125
+        },
+        {
+          "name": "My",
+          "value": 0.0208
+        },
+        {
+          "name": "Mx",
+          "value": 0.125
+        },
+        {
+          "name": "My",
+          "value": 0.0208
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": null,
       "warnings": []
     },
     {
@@ -2930,6 +3018,22 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.125
+        },
+        {
+          "name": "Mym",
+          "value": 0.0208
+        },
+        {
+          "name": "Mxr",
+          "value": 0.125
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -3353,6 +3457,22 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.125
+        },
+        {
+          "name": "Mym",
+          "value": 0.0208
+        },
+        {
+          "name": "Mxr",
+          "value": 0.125
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -3776,6 +3896,22 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.125
+        },
+        {
+          "name": "Mym",
+          "value": 0.0208
+        },
+        {
+          "name": "Mxr",
+          "value": 0.125
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -4199,6 +4335,22 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.125
+        },
+        {
+          "name": "Mym",
+          "value": 0.0208
+        },
+        {
+          "name": "Mxr",
+          "value": 0.125
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -4622,6 +4774,22 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.125
+        },
+        {
+          "name": "Mym",
+          "value": 0.0208
+        },
+        {
+          "name": "Mxr",
+          "value": 0.125
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -5045,6 +5213,22 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.125
+        },
+        {
+          "name": "Mym",
+          "value": 0.0208
+        },
+        {
+          "name": "Mxr",
+          "value": 0.125
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -5468,6 +5652,22 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.125
+        },
+        {
+          "name": "Mym",
+          "value": 0.0208
+        },
+        {
+          "name": "Mxr",
+          "value": 0.125
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -5891,6 +6091,22 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.125
+        },
+        {
+          "name": "Mym",
+          "value": 0.0208
+        },
+        {
+          "name": "Mxr",
+          "value": 0.125
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -6314,6 +6530,22 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.125
+        },
+        {
+          "name": "Mym",
+          "value": 0.0208
+        },
+        {
+          "name": "Mxr",
+          "value": 0.125
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -6737,6 +6969,22 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.125
+        },
+        {
+          "name": "Mym",
+          "value": 0.0208
+        },
+        {
+          "name": "Mxr",
+          "value": 0.125
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -7160,6 +7408,22 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.125
+        },
+        {
+          "name": "Mym",
+          "value": 0.0176
+        },
+        {
+          "name": "Mxr",
+          "value": 0.125
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -7583,6 +7847,22 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.125
+        },
+        {
+          "name": "Mym",
+          "value": 0.0176
+        },
+        {
+          "name": "Mxr",
+          "value": 0.125
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -8006,6 +8286,22 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.125
+        },
+        {
+          "name": "Mym",
+          "value": 0.0176
+        },
+        {
+          "name": "Mxr",
+          "value": 0.125
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -8429,6 +8725,22 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.125
+        },
+        {
+          "name": "Mym",
+          "value": 0.0176
+        },
+        {
+          "name": "Mxr",
+          "value": 0.125
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -8852,6 +9164,22 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.125
+        },
+        {
+          "name": "Mym",
+          "value": 0.0157
+        },
+        {
+          "name": "Mxr",
+          "value": 0.125
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -9275,6 +9603,22 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.125
+        },
+        {
+          "name": "Mym",
+          "value": 0.0157
+        },
+        {
+          "name": "Mxr",
+          "value": 0.125
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -9698,6 +10042,22 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.125
+        },
+        {
+          "name": "Mym",
+          "value": 0.0134
+        },
+        {
+          "name": "Mxr",
+          "value": 0.125
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -10121,6 +10481,22 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.125
+        },
+        {
+          "name": "Mym",
+          "value": 0.0134
+        },
+        {
+          "name": "Mxr",
+          "value": 0.125
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -10544,6 +10920,22 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.125
+        },
+        {
+          "name": "Mym",
+          "value": 0.009
+        },
+        {
+          "name": "Mxr",
+          "value": 0.125
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -10967,6 +11359,22 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.125
+        },
+        {
+          "name": "Mym",
+          "value": 0.009
+        },
+        {
+          "name": "Mxr",
+          "value": 0.125
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -11390,6 +11798,22 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.0625
+        },
+        {
+          "name": "Mym",
+          "value": 0.0104
+        },
+        {
+          "name": "Mxr",
+          "value": 0.125
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -11813,6 +12237,22 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.0625
+        },
+        {
+          "name": "Mym",
+          "value": 0.0104
+        },
+        {
+          "name": "Mxr",
+          "value": 0.125
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -12676,6 +13116,38 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxr",
+          "value": 0.0625
+        },
+        {
+          "name": "My",
+          "value": 0.0
+        },
+        {
+          "name": "My",
+          "value": 0.125
+        },
+        {
+          "name": "Mxe",
+          "value": 0.0104
+        },
+        {
+          "name": "Mxe",
+          "value": 0.0625
+        },
+        {
+          "name": "Mx",
+          "value": 0.0104
+        },
+        {
+          "name": "My",
+          "value": 0.125
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -13539,6 +14011,38 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxr",
+          "value": 0.0625
+        },
+        {
+          "name": "My",
+          "value": 0.0
+        },
+        {
+          "name": "My",
+          "value": 0.125
+        },
+        {
+          "name": "Mxe",
+          "value": 0.0104
+        },
+        {
+          "name": "Mxe",
+          "value": 0.0625
+        },
+        {
+          "name": "Mx",
+          "value": 0.0104
+        },
+        {
+          "name": "My",
+          "value": 0.125
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": [
         {
           "cell": "Nr 15.2!r15c38",
@@ -14105,6 +14609,26 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.0625
+        },
+        {
+          "name": "Mym",
+          "value": 0.0104
+        },
+        {
+          "name": "Mxr",
+          "value": 0.0625
+        },
+        {
+          "name": "Mxe",
+          "value": 0.125
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -14660,6 +15184,26 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.0625
+        },
+        {
+          "name": "Mym",
+          "value": 0.0104
+        },
+        {
+          "name": "Mxr",
+          "value": 0.0625
+        },
+        {
+          "name": "Mxe",
+          "value": 0.125
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -15215,6 +15759,26 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.0625
+        },
+        {
+          "name": "Mym",
+          "value": 0.0104
+        },
+        {
+          "name": "Mxr",
+          "value": 0.0625
+        },
+        {
+          "name": "Mxe",
+          "value": 0.125
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -15770,6 +16334,26 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.0625
+        },
+        {
+          "name": "Mym",
+          "value": 0.0104
+        },
+        {
+          "name": "Mxr",
+          "value": 0.0625
+        },
+        {
+          "name": "Mxe",
+          "value": 0.125
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": [
         {
           "cell": "Nr 17.2!r14c24",
@@ -16331,6 +16915,26 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.0625
+        },
+        {
+          "name": "Mym",
+          "value": 0.0104
+        },
+        {
+          "name": "Mxr",
+          "value": 0.0625
+        },
+        {
+          "name": "Mxe",
+          "value": 0.125
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -16886,6 +17490,26 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.0625
+        },
+        {
+          "name": "Mym",
+          "value": 0.0104
+        },
+        {
+          "name": "Mxr",
+          "value": 0.0625
+        },
+        {
+          "name": "Mxe",
+          "value": 0.125
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -17441,6 +18065,26 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.0625
+        },
+        {
+          "name": "Mym",
+          "value": 0.0104
+        },
+        {
+          "name": "Mxr",
+          "value": 0.0625
+        },
+        {
+          "name": "Mxe",
+          "value": 0.125
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -17996,6 +18640,26 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.0625
+        },
+        {
+          "name": "Mym",
+          "value": 0.0104
+        },
+        {
+          "name": "Mxr",
+          "value": 0.0625
+        },
+        {
+          "name": "Mxe",
+          "value": 0.125
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -18551,6 +19215,26 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.0625
+        },
+        {
+          "name": "Mym",
+          "value": 0.0088
+        },
+        {
+          "name": "Mxr",
+          "value": 0.0625
+        },
+        {
+          "name": "Mxe",
+          "value": 0.125
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -19106,6 +19790,26 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.0625
+        },
+        {
+          "name": "Mym",
+          "value": 0.0088
+        },
+        {
+          "name": "Mxr",
+          "value": 0.0625
+        },
+        {
+          "name": "Mxe",
+          "value": 0.125
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -19661,6 +20365,26 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.0625
+        },
+        {
+          "name": "Mym",
+          "value": 0.0088
+        },
+        {
+          "name": "Mxr",
+          "value": 0.0625
+        },
+        {
+          "name": "Mxe",
+          "value": 0.125
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -20216,6 +20940,26 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.0625
+        },
+        {
+          "name": "Mym",
+          "value": 0.0088
+        },
+        {
+          "name": "Mxr",
+          "value": 0.0625
+        },
+        {
+          "name": "Mxe",
+          "value": 0.125
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -20771,6 +21515,26 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.0625
+        },
+        {
+          "name": "Mym",
+          "value": 0.0088
+        },
+        {
+          "name": "Mxr",
+          "value": 0.0625
+        },
+        {
+          "name": "Mxe",
+          "value": 0.125
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -21326,6 +22090,26 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.0625
+        },
+        {
+          "name": "Mym",
+          "value": 0.0088
+        },
+        {
+          "name": "Mxr",
+          "value": 0.0625
+        },
+        {
+          "name": "Mxe",
+          "value": 0.125
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -21881,6 +22665,26 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.0625
+        },
+        {
+          "name": "Mym",
+          "value": 0.0088
+        },
+        {
+          "name": "Mxr",
+          "value": 0.0625
+        },
+        {
+          "name": "Mxe",
+          "value": 0.125
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -22436,6 +23240,26 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.0625
+        },
+        {
+          "name": "Mym",
+          "value": 0.0088
+        },
+        {
+          "name": "Mxr",
+          "value": 0.0625
+        },
+        {
+          "name": "Mxe",
+          "value": 0.125
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -22991,6 +23815,26 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.0625
+        },
+        {
+          "name": "Mym",
+          "value": 0.0078
+        },
+        {
+          "name": "Mxr",
+          "value": 0.0625
+        },
+        {
+          "name": "Mxe",
+          "value": 0.125
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -23546,6 +24390,26 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.0625
+        },
+        {
+          "name": "Mym",
+          "value": 0.0078
+        },
+        {
+          "name": "Mxr",
+          "value": 0.0625
+        },
+        {
+          "name": "Mxe",
+          "value": 0.125
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -24101,6 +24965,26 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.0625
+        },
+        {
+          "name": "Mym",
+          "value": 0.0067
+        },
+        {
+          "name": "Mxr",
+          "value": 0.0625
+        },
+        {
+          "name": "Mxe",
+          "value": 0.125
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -24656,6 +25540,26 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.0625
+        },
+        {
+          "name": "Mym",
+          "value": 0.0067
+        },
+        {
+          "name": "Mxr",
+          "value": 0.0625
+        },
+        {
+          "name": "Mxe",
+          "value": 0.125
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -25211,6 +26115,26 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.0625
+        },
+        {
+          "name": "Mym",
+          "value": 0.0067
+        },
+        {
+          "name": "Mxr",
+          "value": 0.0625
+        },
+        {
+          "name": "Mxe",
+          "value": 0.125
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -25766,6 +26690,26 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.0625
+        },
+        {
+          "name": "Mym",
+          "value": 0.0067
+        },
+        {
+          "name": "Mxr",
+          "value": 0.0625
+        },
+        {
+          "name": "Mxe",
+          "value": 0.125
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": [
         {
           "cell": "Nr 26.2!r17c12",
@@ -26195,6 +27139,9 @@
           ]
         }
       ],
+      "panel_coefficients": [],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -26618,6 +27565,22 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.0417
+        },
+        {
+          "name": "Mym",
+          "value": 0.0069
+        },
+        {
+          "name": "Mxe",
+          "value": 0.0833
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -27481,6 +28444,38 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxr",
+          "value": 0.0417
+        },
+        {
+          "name": "My",
+          "value": 0.0
+        },
+        {
+          "name": "My",
+          "value": 0.0833
+        },
+        {
+          "name": "Mxe",
+          "value": 0.0069
+        },
+        {
+          "name": "Mxe",
+          "value": 0.0417
+        },
+        {
+          "name": "Mx",
+          "value": 0.0069
+        },
+        {
+          "name": "My",
+          "value": 0.0833
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -28344,6 +29339,38 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxr",
+          "value": 0.0417
+        },
+        {
+          "name": "My",
+          "value": 0.0
+        },
+        {
+          "name": "My",
+          "value": 0.0833
+        },
+        {
+          "name": "Mxe",
+          "value": 0.0069
+        },
+        {
+          "name": "Mxe",
+          "value": 0.0417
+        },
+        {
+          "name": "Mx",
+          "value": 0.0069
+        },
+        {
+          "name": "My",
+          "value": 0.0833
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": [
         {
           "cell": "header",
@@ -28905,6 +29932,26 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.0417
+        },
+        {
+          "name": "Mym",
+          "value": 0.0069
+        },
+        {
+          "name": "Mxr",
+          "value": 0.0417
+        },
+        {
+          "name": "Mxe",
+          "value": 0.0833
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -29460,6 +30507,26 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.0417
+        },
+        {
+          "name": "Mym",
+          "value": 0.0069
+        },
+        {
+          "name": "Mxr",
+          "value": 0.0417
+        },
+        {
+          "name": "Mxe",
+          "value": 0.0833
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -30015,6 +31082,26 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.0417
+        },
+        {
+          "name": "Mym",
+          "value": 0.0069
+        },
+        {
+          "name": "Mxr",
+          "value": 0.0417
+        },
+        {
+          "name": "Mxe",
+          "value": 0.0833
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -30570,6 +31657,26 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.0417
+        },
+        {
+          "name": "Mym",
+          "value": 0.0069
+        },
+        {
+          "name": "Mxr",
+          "value": 0.0417
+        },
+        {
+          "name": "Mxe",
+          "value": 0.0833
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -31125,6 +32232,26 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.0417
+        },
+        {
+          "name": "Mym",
+          "value": 0.0069
+        },
+        {
+          "name": "Mxr",
+          "value": 0.0417
+        },
+        {
+          "name": "Mxe",
+          "value": 0.0833
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -31680,6 +32807,26 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.0417
+        },
+        {
+          "name": "Mym",
+          "value": 0.0069
+        },
+        {
+          "name": "Mxr",
+          "value": 0.0417
+        },
+        {
+          "name": "Mxe",
+          "value": 0.0833
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -32235,6 +33382,26 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.0417
+        },
+        {
+          "name": "Mym",
+          "value": 0.0069
+        },
+        {
+          "name": "Mxr",
+          "value": 0.0417
+        },
+        {
+          "name": "Mxe",
+          "value": 0.0833
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -32790,6 +33957,26 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.0417
+        },
+        {
+          "name": "Mym",
+          "value": 0.0069
+        },
+        {
+          "name": "Mxr",
+          "value": 0.0417
+        },
+        {
+          "name": "Mxe",
+          "value": 0.0833
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -33345,6 +34532,26 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.0417
+        },
+        {
+          "name": "Mym",
+          "value": 0.0069
+        },
+        {
+          "name": "Mxr",
+          "value": 0.0417
+        },
+        {
+          "name": "Mxe",
+          "value": 0.0833
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -33900,6 +35107,26 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.0417
+        },
+        {
+          "name": "Mym",
+          "value": 0.0069
+        },
+        {
+          "name": "Mxr",
+          "value": 0.0417
+        },
+        {
+          "name": "Mxe",
+          "value": 0.0833
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -34455,6 +35682,26 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.0417
+        },
+        {
+          "name": "Mym",
+          "value": 0.0059
+        },
+        {
+          "name": "Mxr",
+          "value": 0.0417
+        },
+        {
+          "name": "Mxe",
+          "value": 0.0833
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -35010,6 +36257,26 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.0417
+        },
+        {
+          "name": "Mym",
+          "value": 0.0059
+        },
+        {
+          "name": "Mxr",
+          "value": 0.0417
+        },
+        {
+          "name": "Mxe",
+          "value": 0.0833
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -35565,6 +36832,26 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.0417
+        },
+        {
+          "name": "Mym",
+          "value": 0.0059
+        },
+        {
+          "name": "Mxr",
+          "value": 0.0417
+        },
+        {
+          "name": "Mxe",
+          "value": 0.0833
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -36120,6 +37407,26 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.0417
+        },
+        {
+          "name": "Mym",
+          "value": 0.0059
+        },
+        {
+          "name": "Mxr",
+          "value": 0.0417
+        },
+        {
+          "name": "Mxe",
+          "value": 0.0833
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -36675,6 +37982,26 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.0417
+        },
+        {
+          "name": "Mym",
+          "value": 0.0059
+        },
+        {
+          "name": "Mxr",
+          "value": 0.0417
+        },
+        {
+          "name": "Mxe",
+          "value": 0.0833
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -37230,6 +38557,26 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.0417
+        },
+        {
+          "name": "Mym",
+          "value": 0.0059
+        },
+        {
+          "name": "Mxr",
+          "value": 0.0417
+        },
+        {
+          "name": "Mxe",
+          "value": 0.0833
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -37785,6 +39132,26 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.0417
+        },
+        {
+          "name": "Mym",
+          "value": 0.0052
+        },
+        {
+          "name": "Mxr",
+          "value": 0.0417
+        },
+        {
+          "name": "Mxe",
+          "value": 0.0833
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -38340,6 +39707,26 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.0417
+        },
+        {
+          "name": "Mym",
+          "value": 0.0052
+        },
+        {
+          "name": "Mxr",
+          "value": 0.0417
+        },
+        {
+          "name": "Mxe",
+          "value": 0.0833
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -38895,6 +40282,26 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.0417
+        },
+        {
+          "name": "Mym",
+          "value": 0.0045
+        },
+        {
+          "name": "Mxr",
+          "value": 0.0417
+        },
+        {
+          "name": "Mxe",
+          "value": 0.0833
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -39450,6 +40857,26 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.0417
+        },
+        {
+          "name": "Mym",
+          "value": 0.0045
+        },
+        {
+          "name": "Mxr",
+          "value": 0.0417
+        },
+        {
+          "name": "Mxe",
+          "value": 0.0833
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -40005,6 +41432,26 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.0417
+        },
+        {
+          "name": "Mym",
+          "value": 0.0045
+        },
+        {
+          "name": "Mxr",
+          "value": 0.0417
+        },
+        {
+          "name": "Mxe",
+          "value": 0.0833
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -40560,6 +42007,26 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.0417
+        },
+        {
+          "name": "Mym",
+          "value": 0.0045
+        },
+        {
+          "name": "Mxr",
+          "value": 0.0417
+        },
+        {
+          "name": "Mxe",
+          "value": 0.0833
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -40983,6 +42450,22 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.125
+        },
+        {
+          "name": "Mym",
+          "value": 0.021
+        },
+        {
+          "name": "Myr",
+          "value": 0.034
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -41406,6 +42889,22 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.125
+        },
+        {
+          "name": "Mym",
+          "value": 0.021
+        },
+        {
+          "name": "Myr",
+          "value": 0.034
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -41961,6 +43460,26 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.125
+        },
+        {
+          "name": "Mym",
+          "value": 0.021
+        },
+        {
+          "name": "Mxr",
+          "value": 0.125
+        },
+        {
+          "name": "Myr",
+          "value": 0.034
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -42516,6 +44035,26 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.125
+        },
+        {
+          "name": "Mym",
+          "value": 0.021
+        },
+        {
+          "name": "Mxr",
+          "value": 0.125
+        },
+        {
+          "name": "Myr",
+          "value": 0.034
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": [
         {
           "cell": "header",
@@ -43077,6 +44616,26 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.11
+        },
+        {
+          "name": "Mym",
+          "value": 0.028
+        },
+        {
+          "name": "Mxr",
+          "value": 0.125
+        },
+        {
+          "name": "Myr",
+          "value": 0.034
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -43632,6 +45191,26 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.11
+        },
+        {
+          "name": "Mym",
+          "value": 0.028
+        },
+        {
+          "name": "Mxr",
+          "value": 0.125
+        },
+        {
+          "name": "Myr",
+          "value": 0.034
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -44187,6 +45766,26 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.1
+        },
+        {
+          "name": "Mym",
+          "value": 0.032
+        },
+        {
+          "name": "Mxr",
+          "value": 0.12
+        },
+        {
+          "name": "Myr",
+          "value": 0.034
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -44742,6 +46341,26 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.1
+        },
+        {
+          "name": "Mym",
+          "value": 0.032
+        },
+        {
+          "name": "Mxr",
+          "value": 0.12
+        },
+        {
+          "name": "Myr",
+          "value": 0.034
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -45165,6 +46784,22 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.082
+        },
+        {
+          "name": "Mym",
+          "value": 0.034
+        },
+        {
+          "name": "Mxr",
+          "value": 0.113
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -45588,6 +47223,22 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.082
+        },
+        {
+          "name": "Mym",
+          "value": 0.034
+        },
+        {
+          "name": "Mxr",
+          "value": 0.113
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -46011,6 +47662,22 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.076
+        },
+        {
+          "name": "Mym",
+          "value": 0.034
+        },
+        {
+          "name": "Mxr",
+          "value": 0.104
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -46434,6 +48101,22 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.076
+        },
+        {
+          "name": "Mym",
+          "value": 0.034
+        },
+        {
+          "name": "Mxr",
+          "value": 0.104
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -46989,6 +48672,26 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.063
+        },
+        {
+          "name": "Mym",
+          "value": 0.011
+        },
+        {
+          "name": "Myr",
+          "value": 0.025
+        },
+        {
+          "name": "Mxe",
+          "value": 0.125
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -47544,6 +49247,26 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.063
+        },
+        {
+          "name": "Mym",
+          "value": 0.011
+        },
+        {
+          "name": "Myr",
+          "value": 0.025
+        },
+        {
+          "name": "Mxe",
+          "value": 0.125
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -48231,6 +49954,30 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.063
+        },
+        {
+          "name": "Mym",
+          "value": 0.011
+        },
+        {
+          "name": "Mxr",
+          "value": 0.063
+        },
+        {
+          "name": "Myr",
+          "value": 0.025
+        },
+        {
+          "name": "Mxe",
+          "value": 0.125
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -48918,6 +50665,30 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.063
+        },
+        {
+          "name": "Mym",
+          "value": 0.011
+        },
+        {
+          "name": "Mxr",
+          "value": 0.063
+        },
+        {
+          "name": "Myr",
+          "value": 0.025
+        },
+        {
+          "name": "Mxe",
+          "value": 0.125
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -49605,6 +51376,30 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.06
+        },
+        {
+          "name": "Mym",
+          "value": 0.016
+        },
+        {
+          "name": "Mxr",
+          "value": 0.063
+        },
+        {
+          "name": "Myr",
+          "value": 0.025
+        },
+        {
+          "name": "Mxe",
+          "value": 0.113
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -50292,6 +52087,30 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.06
+        },
+        {
+          "name": "Mym",
+          "value": 0.016
+        },
+        {
+          "name": "Mxr",
+          "value": 0.063
+        },
+        {
+          "name": "Myr",
+          "value": 0.025
+        },
+        {
+          "name": "Mxe",
+          "value": 0.113
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -50979,6 +52798,30 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.056
+        },
+        {
+          "name": "Mym",
+          "value": 0.022
+        },
+        {
+          "name": "Mxr",
+          "value": 0.063
+        },
+        {
+          "name": "Myr",
+          "value": 0.025
+        },
+        {
+          "name": "Mxe",
+          "value": 0.104
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -51666,6 +53509,30 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.056
+        },
+        {
+          "name": "Mym",
+          "value": 0.022
+        },
+        {
+          "name": "Mxr",
+          "value": 0.063
+        },
+        {
+          "name": "Myr",
+          "value": 0.025
+        },
+        {
+          "name": "Mxe",
+          "value": 0.104
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -52221,6 +54088,26 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.05
+        },
+        {
+          "name": "Mym",
+          "value": 0.027
+        },
+        {
+          "name": "Mxr",
+          "value": 0.06
+        },
+        {
+          "name": "Mxe",
+          "value": 0.088
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -52776,6 +54663,26 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.05
+        },
+        {
+          "name": "Mym",
+          "value": 0.027
+        },
+        {
+          "name": "Mxr",
+          "value": 0.06
+        },
+        {
+          "name": "Mxe",
+          "value": 0.088
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -53331,6 +55238,26 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.045
+        },
+        {
+          "name": "Mym",
+          "value": 0.03
+        },
+        {
+          "name": "Mxr",
+          "value": 0.058
+        },
+        {
+          "name": "Mxe",
+          "value": 0.069
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -53886,6 +55813,26 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.045
+        },
+        {
+          "name": "Mym",
+          "value": 0.03
+        },
+        {
+          "name": "Mxr",
+          "value": 0.058
+        },
+        {
+          "name": "Mxe",
+          "value": 0.069
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -54441,6 +56388,26 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.042
+        },
+        {
+          "name": "Mym",
+          "value": 0.007
+        },
+        {
+          "name": "Myr",
+          "value": 0.018
+        },
+        {
+          "name": "Mxe",
+          "value": 0.083
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -54996,6 +56963,26 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.042
+        },
+        {
+          "name": "Mym",
+          "value": 0.007
+        },
+        {
+          "name": "Myr",
+          "value": 0.018
+        },
+        {
+          "name": "Mxe",
+          "value": 0.083
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -55683,6 +57670,30 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.042
+        },
+        {
+          "name": "Mym",
+          "value": 0.007
+        },
+        {
+          "name": "Mxr",
+          "value": 0.042
+        },
+        {
+          "name": "Myr",
+          "value": 0.018
+        },
+        {
+          "name": "Mxe",
+          "value": 0.083
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -56370,6 +58381,30 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.042
+        },
+        {
+          "name": "Mym",
+          "value": 0.007
+        },
+        {
+          "name": "Mxr",
+          "value": 0.042
+        },
+        {
+          "name": "Myr",
+          "value": 0.018
+        },
+        {
+          "name": "Mxe",
+          "value": 0.083
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -57057,6 +59092,30 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.042
+        },
+        {
+          "name": "Mym",
+          "value": 0.009
+        },
+        {
+          "name": "Mxr",
+          "value": 0.042
+        },
+        {
+          "name": "Myr",
+          "value": 0.018
+        },
+        {
+          "name": "Mxe",
+          "value": 0.083
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -57744,6 +59803,30 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.042
+        },
+        {
+          "name": "Mym",
+          "value": 0.009
+        },
+        {
+          "name": "Mxr",
+          "value": 0.042
+        },
+        {
+          "name": "Myr",
+          "value": 0.018
+        },
+        {
+          "name": "Mxe",
+          "value": 0.083
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -58431,6 +60514,30 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.042
+        },
+        {
+          "name": "Mym",
+          "value": 0.012
+        },
+        {
+          "name": "Mxr",
+          "value": 0.042
+        },
+        {
+          "name": "Myr",
+          "value": 0.018
+        },
+        {
+          "name": "Mxe",
+          "value": 0.083
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -59118,6 +61225,30 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.042
+        },
+        {
+          "name": "Mym",
+          "value": 0.012
+        },
+        {
+          "name": "Mxr",
+          "value": 0.042
+        },
+        {
+          "name": "Myr",
+          "value": 0.018
+        },
+        {
+          "name": "Mxe",
+          "value": 0.083
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -59673,6 +61804,26 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.04
+        },
+        {
+          "name": "Mym",
+          "value": 0.017
+        },
+        {
+          "name": "Mxr",
+          "value": 0.042
+        },
+        {
+          "name": "Mxe",
+          "value": 0.08
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -60228,6 +62379,26 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.04
+        },
+        {
+          "name": "Mym",
+          "value": 0.017
+        },
+        {
+          "name": "Mxr",
+          "value": 0.042
+        },
+        {
+          "name": "Mxe",
+          "value": 0.08
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -60783,6 +62954,26 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.038
+        },
+        {
+          "name": "Mym",
+          "value": 0.021
+        },
+        {
+          "name": "Mxr",
+          "value": 0.042
+        },
+        {
+          "name": "Mxe",
+          "value": 0.075
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -61338,6 +63529,26 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.038
+        },
+        {
+          "name": "Mym",
+          "value": 0.021
+        },
+        {
+          "name": "Mxr",
+          "value": 0.042
+        },
+        {
+          "name": "Mxe",
+          "value": 0.075
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -61893,6 +64104,26 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.125
+        },
+        {
+          "name": "Mym",
+          "value": 0.021
+        },
+        {
+          "name": "Mye",
+          "value": 0.125
+        },
+        {
+          "name": "Myr",
+          "value": 0.034
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -62448,6 +64679,26 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.125
+        },
+        {
+          "name": "Mym",
+          "value": 0.021
+        },
+        {
+          "name": "Mye",
+          "value": 0.125
+        },
+        {
+          "name": "Myr",
+          "value": 0.034
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -63135,6 +65386,30 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.125
+        },
+        {
+          "name": "Mym",
+          "value": 0.021
+        },
+        {
+          "name": "Mxr",
+          "value": 0.125
+        },
+        {
+          "name": "Mye",
+          "value": 0.125
+        },
+        {
+          "name": "Myr",
+          "value": 0.034
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -63822,6 +66097,30 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.125
+        },
+        {
+          "name": "Mym",
+          "value": 0.021
+        },
+        {
+          "name": "Mxr",
+          "value": 0.125
+        },
+        {
+          "name": "Mye",
+          "value": 0.125
+        },
+        {
+          "name": "Myr",
+          "value": 0.034
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -64509,6 +66808,30 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.11
+        },
+        {
+          "name": "Mym",
+          "value": 0.035
+        },
+        {
+          "name": "Mxr",
+          "value": 0.125
+        },
+        {
+          "name": "Mye",
+          "value": 0.125
+        },
+        {
+          "name": "Myr",
+          "value": 0.034
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -65196,6 +67519,30 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.11
+        },
+        {
+          "name": "Mym",
+          "value": 0.035
+        },
+        {
+          "name": "Mxr",
+          "value": 0.125
+        },
+        {
+          "name": "Mye",
+          "value": 0.125
+        },
+        {
+          "name": "Myr",
+          "value": 0.034
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -65751,6 +68098,26 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.096
+        },
+        {
+          "name": "Mym",
+          "value": 0.04
+        },
+        {
+          "name": "Mxr",
+          "value": 0.115
+        },
+        {
+          "name": "Mye",
+          "value": 0.125
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -66306,6 +68673,26 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.096
+        },
+        {
+          "name": "Mym",
+          "value": 0.04
+        },
+        {
+          "name": "Mxr",
+          "value": 0.115
+        },
+        {
+          "name": "Mye",
+          "value": 0.125
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -66861,6 +69248,26 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.075
+        },
+        {
+          "name": "Mym",
+          "value": 0.039
+        },
+        {
+          "name": "Mxr",
+          "value": 0.103
+        },
+        {
+          "name": "Mye",
+          "value": 0.125
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -67416,6 +69823,26 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.075
+        },
+        {
+          "name": "Mym",
+          "value": 0.039
+        },
+        {
+          "name": "Mxr",
+          "value": 0.103
+        },
+        {
+          "name": "Mye",
+          "value": 0.125
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -67971,6 +70398,26 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.065
+        },
+        {
+          "name": "Mym",
+          "value": 0.036
+        },
+        {
+          "name": "Mxr",
+          "value": 0.088
+        },
+        {
+          "name": "Mye",
+          "value": 0.119
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -68526,6 +70973,26 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.065
+        },
+        {
+          "name": "Mym",
+          "value": 0.036
+        },
+        {
+          "name": "Mxr",
+          "value": 0.088
+        },
+        {
+          "name": "Mye",
+          "value": 0.119
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -69213,6 +71680,30 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.063
+        },
+        {
+          "name": "Mym",
+          "value": 0.011
+        },
+        {
+          "name": "Mxe",
+          "value": 0.125
+        },
+        {
+          "name": "Mye",
+          "value": 0.089
+        },
+        {
+          "name": "Myr",
+          "value": 0.02
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -69900,6 +72391,30 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.063
+        },
+        {
+          "name": "Mym",
+          "value": 0.011
+        },
+        {
+          "name": "Mxe",
+          "value": 0.125
+        },
+        {
+          "name": "Mye",
+          "value": 0.089
+        },
+        {
+          "name": "Myr",
+          "value": 0.02
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -70719,6 +73234,34 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.063
+        },
+        {
+          "name": "Mym",
+          "value": 0.011
+        },
+        {
+          "name": "Mxr",
+          "value": 0.063
+        },
+        {
+          "name": "Mxe",
+          "value": 0.125
+        },
+        {
+          "name": "Mye",
+          "value": 0.089
+        },
+        {
+          "name": "Myr",
+          "value": 0.02
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -71538,6 +74081,34 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.063
+        },
+        {
+          "name": "Mym",
+          "value": 0.011
+        },
+        {
+          "name": "Mxr",
+          "value": 0.063
+        },
+        {
+          "name": "Mxe",
+          "value": 0.125
+        },
+        {
+          "name": "Mye",
+          "value": 0.089
+        },
+        {
+          "name": "Myr",
+          "value": 0.02
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -72357,6 +74928,34 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.06
+        },
+        {
+          "name": "Mym",
+          "value": 0.011
+        },
+        {
+          "name": "Mxr",
+          "value": 0.063
+        },
+        {
+          "name": "Mxe",
+          "value": 0.109
+        },
+        {
+          "name": "Mye",
+          "value": 0.089
+        },
+        {
+          "name": "Myr",
+          "value": 0.02
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -73176,6 +75775,34 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.06
+        },
+        {
+          "name": "Mym",
+          "value": 0.011
+        },
+        {
+          "name": "Mxr",
+          "value": 0.063
+        },
+        {
+          "name": "Mxe",
+          "value": 0.109
+        },
+        {
+          "name": "Mye",
+          "value": 0.089
+        },
+        {
+          "name": "Myr",
+          "value": 0.02
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -73863,6 +76490,30 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.054
+        },
+        {
+          "name": "Mym",
+          "value": 0.023
+        },
+        {
+          "name": "Mxr",
+          "value": 0.063
+        },
+        {
+          "name": "Mxe",
+          "value": 0.068
+        },
+        {
+          "name": "Mye",
+          "value": 0.089
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -74550,6 +77201,30 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.054
+        },
+        {
+          "name": "Mym",
+          "value": 0.023
+        },
+        {
+          "name": "Mxr",
+          "value": 0.063
+        },
+        {
+          "name": "Mxe",
+          "value": 0.068
+        },
+        {
+          "name": "Mye",
+          "value": 0.089
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -75237,6 +77912,30 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.046
+        },
+        {
+          "name": "Mym",
+          "value": 0.027
+        },
+        {
+          "name": "Mxr",
+          "value": 0.059
+        },
+        {
+          "name": "Mxe",
+          "value": 0.076
+        },
+        {
+          "name": "Mye",
+          "value": 0.089
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -75924,6 +78623,30 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.046
+        },
+        {
+          "name": "Mym",
+          "value": 0.027
+        },
+        {
+          "name": "Mxr",
+          "value": 0.059
+        },
+        {
+          "name": "Mxe",
+          "value": 0.076
+        },
+        {
+          "name": "Mye",
+          "value": 0.089
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -76611,6 +79334,30 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.038
+        },
+        {
+          "name": "Mym",
+          "value": 0.028
+        },
+        {
+          "name": "Mxr",
+          "value": 0.053
+        },
+        {
+          "name": "Mxe",
+          "value": 0.053
+        },
+        {
+          "name": "Mye",
+          "value": 0.089
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -77298,6 +80045,30 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.038
+        },
+        {
+          "name": "Mym",
+          "value": 0.028
+        },
+        {
+          "name": "Mxr",
+          "value": 0.053
+        },
+        {
+          "name": "Mxe",
+          "value": 0.053
+        },
+        {
+          "name": "Mye",
+          "value": 0.089
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -78117,6 +80888,34 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.042
+        },
+        {
+          "name": "Mym",
+          "value": 0.009
+        },
+        {
+          "name": "Mxr",
+          "value": 0.0
+        },
+        {
+          "name": "Mxe",
+          "value": 0.083
+        },
+        {
+          "name": "Mye",
+          "value": 0.057
+        },
+        {
+          "name": "Myr",
+          "value": 0.015
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -78936,6 +81735,34 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.042
+        },
+        {
+          "name": "Mym",
+          "value": 0.009
+        },
+        {
+          "name": "Mxr",
+          "value": 0.0
+        },
+        {
+          "name": "Mxe",
+          "value": 0.083
+        },
+        {
+          "name": "Mye",
+          "value": 0.057
+        },
+        {
+          "name": "Myr",
+          "value": 0.015
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -79755,6 +82582,34 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.042
+        },
+        {
+          "name": "Mym",
+          "value": 0.009
+        },
+        {
+          "name": "Mxr",
+          "value": 0.042
+        },
+        {
+          "name": "Mxe",
+          "value": 0.083
+        },
+        {
+          "name": "Mye",
+          "value": 0.057
+        },
+        {
+          "name": "Myr",
+          "value": 0.015
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -80574,6 +83429,34 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.042
+        },
+        {
+          "name": "Mym",
+          "value": 0.009
+        },
+        {
+          "name": "Mxr",
+          "value": 0.042
+        },
+        {
+          "name": "Mxe",
+          "value": 0.083
+        },
+        {
+          "name": "Mye",
+          "value": 0.057
+        },
+        {
+          "name": "Myr",
+          "value": 0.015
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -81393,6 +84276,34 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.042
+        },
+        {
+          "name": "Mym",
+          "value": 0.01
+        },
+        {
+          "name": "Mxr",
+          "value": 0.042
+        },
+        {
+          "name": "Mxe",
+          "value": 0.083
+        },
+        {
+          "name": "Mye",
+          "value": 0.057
+        },
+        {
+          "name": "Myr",
+          "value": 0.015
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -82212,6 +85123,34 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.042
+        },
+        {
+          "name": "Mym",
+          "value": 0.01
+        },
+        {
+          "name": "Mxr",
+          "value": 0.042
+        },
+        {
+          "name": "Mxe",
+          "value": 0.083
+        },
+        {
+          "name": "Mye",
+          "value": 0.057
+        },
+        {
+          "name": "Myr",
+          "value": 0.015
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -82899,6 +85838,30 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.042
+        },
+        {
+          "name": "Mym",
+          "value": 0.014
+        },
+        {
+          "name": "Mxr",
+          "value": 0.042
+        },
+        {
+          "name": "Mxe",
+          "value": 0.083
+        },
+        {
+          "name": "Mye",
+          "value": 0.057
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -83586,6 +86549,30 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.042
+        },
+        {
+          "name": "Mym",
+          "value": 0.014
+        },
+        {
+          "name": "Mxr",
+          "value": 0.042
+        },
+        {
+          "name": "Mxe",
+          "value": 0.083
+        },
+        {
+          "name": "Mye",
+          "value": 0.057
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -84273,6 +87260,30 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.04
+        },
+        {
+          "name": "Mym",
+          "value": 0.018
+        },
+        {
+          "name": "Mxr",
+          "value": 0.042
+        },
+        {
+          "name": "Mxe",
+          "value": 0.083
+        },
+        {
+          "name": "Mye",
+          "value": 0.057
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -84960,6 +87971,30 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.04
+        },
+        {
+          "name": "Mym",
+          "value": 0.018
+        },
+        {
+          "name": "Mxr",
+          "value": 0.042
+        },
+        {
+          "name": "Mxe",
+          "value": 0.083
+        },
+        {
+          "name": "Mye",
+          "value": 0.057
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -85647,6 +88682,30 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.03
+        },
+        {
+          "name": "Mym",
+          "value": 0.021
+        },
+        {
+          "name": "Mxr",
+          "value": 0.041
+        },
+        {
+          "name": "Mxe",
+          "value": 0.066
+        },
+        {
+          "name": "Mye",
+          "value": 0.056
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -86334,6 +89393,30 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.03
+        },
+        {
+          "name": "Mym",
+          "value": 0.021
+        },
+        {
+          "name": "Mxr",
+          "value": 0.041
+        },
+        {
+          "name": "Mxe",
+          "value": 0.066
+        },
+        {
+          "name": "Mye",
+          "value": 0.056
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -86625,6 +89708,18 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.1
+        },
+        {
+          "name": "Mym",
+          "value": 0.033
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -86916,6 +90011,18 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.1
+        },
+        {
+          "name": "Mym",
+          "value": 0.033
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -87207,6 +90314,18 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.078
+        },
+        {
+          "name": "Mym",
+          "value": 0.04
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -87498,6 +90617,18 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.078
+        },
+        {
+          "name": "Mym",
+          "value": 0.04
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -87789,6 +90920,18 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.059
+        },
+        {
+          "name": "Mym",
+          "value": 0.043
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": null,
       "warnings": []
     },
     {
@@ -88080,6 +91223,18 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.059
+        },
+        {
+          "name": "Mym",
+          "value": 0.043
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": null,
       "warnings": []
     },
     {
@@ -88371,6 +91526,18 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.043
+        },
+        {
+          "name": "Mym",
+          "value": 0.043
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": null,
       "warnings": []
     },
     {
@@ -88662,6 +91829,18 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.043
+        },
+        {
+          "name": "Mym",
+          "value": 0.043
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": null,
       "warnings": []
     },
     {
@@ -88953,6 +92132,18 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.027
+        },
+        {
+          "name": "Mym",
+          "value": 0.04
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": null,
       "warnings": []
     },
     {
@@ -89244,6 +92435,18 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.027
+        },
+        {
+          "name": "Mym",
+          "value": 0.04
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": null,
       "warnings": []
     },
     {
@@ -89667,6 +92870,22 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.092
+        },
+        {
+          "name": "Mym",
+          "value": 0.035
+        },
+        {
+          "name": "Mye",
+          "value": 0.121
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -90090,6 +93309,22 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.092
+        },
+        {
+          "name": "Mym",
+          "value": 0.035
+        },
+        {
+          "name": "Mye",
+          "value": 0.121
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -90513,6 +93748,22 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.066
+        },
+        {
+          "name": "Mym",
+          "value": 0.04
+        },
+        {
+          "name": "Mye",
+          "value": 0.112
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -90936,6 +94187,22 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.066
+        },
+        {
+          "name": "Mym",
+          "value": 0.04
+        },
+        {
+          "name": "Mye",
+          "value": 0.112
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -91227,6 +94494,22 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.045
+        },
+        {
+          "name": "Mym",
+          "value": 0.039
+        },
+        {
+          "name": "Mye",
+          "value": 0.098
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": null,
       "warnings": []
     },
     {
@@ -91650,6 +94933,22 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.045
+        },
+        {
+          "name": "Mym",
+          "value": 0.039
+        },
+        {
+          "name": "Mye",
+          "value": 0.098
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -92073,6 +95372,22 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.03
+        },
+        {
+          "name": "Mym",
+          "value": 0.036
+        },
+        {
+          "name": "Mye",
+          "value": 0.084
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -92496,6 +95811,22 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.03
+        },
+        {
+          "name": "Mym",
+          "value": 0.036
+        },
+        {
+          "name": "Mye",
+          "value": 0.084
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -92919,6 +96250,22 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.017
+        },
+        {
+          "name": "Mym",
+          "value": 0.03
+        },
+        {
+          "name": "Mye",
+          "value": 0.064
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -93342,6 +96689,22 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.017
+        },
+        {
+          "name": "Mym",
+          "value": 0.03
+        },
+        {
+          "name": "Mye",
+          "value": 0.064
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": [
         {
           "cell": "Nr 86.2!r19c20",
@@ -93771,6 +97134,22 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.084
+        },
+        {
+          "name": "Mym",
+          "value": 0.037
+        },
+        {
+          "name": "Mye",
+          "value": 0.119
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -94194,6 +97573,22 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.084
+        },
+        {
+          "name": "Mym",
+          "value": 0.037
+        },
+        {
+          "name": "Mye",
+          "value": 0.119
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -94617,6 +98012,22 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.054
+        },
+        {
+          "name": "Mym",
+          "value": 0.039
+        },
+        {
+          "name": "Mye",
+          "value": 0.105
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -95040,6 +98451,22 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.054
+        },
+        {
+          "name": "Mym",
+          "value": 0.039
+        },
+        {
+          "name": "Mye",
+          "value": 0.105
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -95463,6 +98890,22 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.035
+        },
+        {
+          "name": "Mym",
+          "value": 0.036
+        },
+        {
+          "name": "Mye",
+          "value": 0.087
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": [
         {
           "cell": "Nr 90.1!r24c19",
@@ -95892,6 +99335,22 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.035
+        },
+        {
+          "name": "Mym",
+          "value": 0.036
+        },
+        {
+          "name": "Mye",
+          "value": 0.087
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -96315,6 +99774,22 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.021
+        },
+        {
+          "name": "Mym",
+          "value": 0.03
+        },
+        {
+          "name": "Mye",
+          "value": 0.069
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -96738,6 +100213,22 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.021
+        },
+        {
+          "name": "Mym",
+          "value": 0.03
+        },
+        {
+          "name": "Mye",
+          "value": 0.069
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -97161,6 +100652,22 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.016
+        },
+        {
+          "name": "Mym",
+          "value": 0.024
+        },
+        {
+          "name": "Mye",
+          "value": 0.05
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -97584,6 +101091,22 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.016
+        },
+        {
+          "name": "Mym",
+          "value": 0.024
+        },
+        {
+          "name": "Mye",
+          "value": 0.05
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -98139,6 +101662,18 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.021
+        },
+        {
+          "name": "Mym",
+          "value": 0.021
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -98694,6 +102229,18 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxm",
+          "value": 0.021
+        },
+        {
+          "name": "Mym",
+          "value": 0.021
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": [
         {
           "cell": "header",
@@ -99387,6 +102934,18 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxe",
+          "value": 0.5
+        },
+        {
+          "name": "Myr",
+          "value": 0.0
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -100074,6 +103633,18 @@
           ]
         }
       ],
+      "panel_coefficients": [
+        {
+          "name": "Mxe",
+          "value": 0.5
+        },
+        {
+          "name": "Myr",
+          "value": 0.0
+        }
+      ],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -100365,6 +103936,9 @@
           ]
         }
       ],
+      "panel_coefficients": [],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -100656,6 +104230,9 @@
           ]
         }
       ],
+      "panel_coefficients": [],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     },
     {
@@ -100947,6 +104524,9 @@
           ]
         }
       ],
+      "panel_coefficients": [],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": [
         {
           "cell": "Nr 101!r15c6",
@@ -101244,6 +104824,9 @@
           ]
         }
       ],
+      "panel_coefficients": [],
+      "bridge_class": "Brückenklasse 30t bis 60t",
+      "uniform_reference": "Gleichlast um SLW von 1 t.m2",
       "warnings": []
     }
   ],

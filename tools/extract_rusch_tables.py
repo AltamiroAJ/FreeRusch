@@ -59,6 +59,40 @@ DASHES = {"-", "–", "—", ""}
 # para que a lacuna apareça na auditoria em vez de virar um número inventado.
 EXCEL_ERRORS = ("#NULL!", "#DIV/0!", "#VALUE!", "#REF!", "#NAME?", "#NUM!", "#N/A")
 
+# Nomes de resultante usados nos cabeçalhos (linhas 3–8 das planilhas).
+RESULTANT_NAMES = {"Mxm", "Mym", "Mxr", "Mxe", "Mye", "Myr", "Mx", "My", "Qx"}
+
+
+def parse_panel_coefficients(grid, header_row: int) -> list:
+    """Coeficientes fixos do painel (cabeçalho, ex.: `Mxm = 0,063`).
+
+    São os coeficientes da carga uniforme distribuída em **todo** o painel:
+    `M = k · q · lx²`. Ficavam de fora da extração original, que só lia a grade
+    de coeficientes variáveis.
+    """
+    found = []
+    for row in grid[:header_row]:
+        for c, value in enumerate(row):
+            if not (isinstance(value, str) and value.strip() in RESULTANT_NAMES):
+                continue
+            for k in range(c + 1, len(row)):
+                candidate = row[k]
+                if candidate is None:
+                    continue
+                if isinstance(candidate, (int, float)) and not isinstance(candidate, bool):
+                    found.append({"name": value.strip(), "value": float(candidate)})
+                break
+    return found
+
+
+def parse_note(grid, header_row: int, needle: str) -> str | None:
+    """Primeira célula de texto (acima do cabeçalho) que contém `needle`."""
+    for row in grid[:header_row]:
+        for value in row:
+            if isinstance(value, str) and needle.lower() in value.lower():
+                return value.strip()
+    return None
+
 
 def as_optional_float(value, where: str, warnings: list):
     """Converte uma célula em float, ou `None` para ausência.
@@ -246,6 +280,9 @@ def parse_sheet(name, grid, warnings: list | None = None):
         "ratio_is_infinite": ratio_raw == "∞",
         "rows": rows,
         "columns": columns,
+        "panel_coefficients": parse_panel_coefficients(grid, header_row),
+        "bridge_class": parse_note(grid, header_row, "Brückenklasse"),
+        "uniform_reference": parse_note(grid, header_row, "Gleichlast"),
         "warnings": warnings,
     }
 
