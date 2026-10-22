@@ -1,0 +1,14 @@
+[package]
+name = "freerusch-project"
+description = "Arquivo de projeto .frus do FreeRusch (JSON versionado, escrita atômica via craft-atomic)"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[dependencies]
+freerusch-core = { workspace = true }
+craft-atomic   = { workspace = true }
+serde          = { workspace = true }
+serde_json     = { workspace = true }
+thiserror      = { workspace = true }

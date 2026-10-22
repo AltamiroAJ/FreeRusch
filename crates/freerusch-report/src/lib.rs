@@ -8,7 +8,7 @@
 
 use std::path::Path;
 
-use freerusch_core::{MomentResult, RuschError, TrainType};
+use freerusch_core::{MomentDiagram, MomentResult, RuschError, TrainType};
 use thiserror::Error;
 
 /// Erros da geração da memória de cálculo.
@@ -76,6 +76,69 @@ fn html_escape(s: &str) -> String {
     out
 }
 
+/// Gera um SVG inline do diagrama de momentos, pronto para embutir na memória
+/// de cálculo (documento autocontido, sem arquivos externos).
+///
+/// A escala vertical usa [`MomentDiagram::max_abs_moment`] e recai em `1.0`
+/// quando o diagrama é nulo, evitando divisão por zero. Pontos não finitos são
+/// descartados. Retorna string vazia quando não há pontos representáveis.
+pub fn diagram_svg(diagram: &MomentDiagram) -> String {
+    let pts: Vec<(f64, f64)> = diagram
+        .points
+        .iter()
+        .copied()
+        .filter(|&(x, m)| x.is_finite() && m.is_finite())
+        .collect();
+    if pts.is_empty() {
+        return String::new();
+    }
+
+    const W: f64 = 680.0;
+    const H: f64 = 220.0;
+    const LEFT: f64 = 48.0;
+    const RIGHT: f64 = 16.0;
+    const TOP: f64 = 16.0;
+    const BOTTOM: f64 = 28.0;
+
+    let plot_w = W - LEFT - RIGHT;
+    let plot_h = H - TOP - BOTTOM;
+    let mid_y = TOP + plot_h / 2.0;
+
+    let x_last = pts.last().map(|p| p.0).unwrap_or(0.0);
+    let x_max = if x_last > 0.0 { x_last } else { 1.0 };
+    let span = diagram.max_abs_moment();
+    let span = if span > 0.0 { span } else { 1.0 };
+
+    let mut polyline = String::with_capacity(pts.len() * 16);
+    for (i, &(x, m)) in pts.iter().enumerate() {
+        let px = LEFT + (x / x_max) * plot_w;
+        let py = mid_y - (m / span) * (plot_h / 2.0);
+        if i > 0 {
+            polyline.push(' ');
+        }
+        polyline.push_str(&format!("{px:.2},{py:.2}"));
+    }
+
+    let m_max = pts
+        .iter()
+        .map(|&(_, m)| m)
+        .fold(f64::NEG_INFINITY, f64::max);
+    let m_min = pts.iter().map(|&(_, m)| m).fold(f64::INFINITY, f64::min);
+
+    format!(
+        r##"<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {W} {H}" width="100%" role="img" aria-label="Diagrama de momentos fletores">
+<rect x="0" y="0" width="{W}" height="{H}" fill="#fbfbfb" stroke="#ccc"/>
+<line x1="{LEFT}" y1="{mid_y:.2}" x2="{x_right:.2}" y2="{mid_y:.2}" stroke="#888" stroke-dasharray="4 3"/>
+<polyline points="{polyline}" fill="none" stroke="#b00" stroke-width="2"/>
+<text x="{LEFT}" y="12" font-family="sans-serif" font-size="11" fill="#444">M⁺ = {m_max:.2} kN·m/m</text>
+<text x="{LEFT}" y="{h_text:.2}" font-family="sans-serif" font-size="11" fill="#444">M⁻ = {m_min:.2} kN·m/m</text>
+<text x="{x_right:.2}" y="{h_text:.2}" font-family="sans-serif" font-size="11" fill="#666" text-anchor="end">x (m)</text>
+</svg>"##,
+        x_right = W - RIGHT,
+        h_text = H - 8.0,
+    )
+}
+
 /// Gera a memória de cálculo completa em HTML (documento único, autocontido).
 ///
 /// Inclui cabeçalho, premissas de entrada, coeficientes Rüsch interpolados e
@@ -85,6 +148,17 @@ pub fn render_html(input: &SlabInput, result: &MomentResult) -> String {
         .beta
         .map(|b| format!("{b:.4}"))
         .unwrap_or_else(|| "—".to_string());
+    // O diagrama é derivado do próprio resultado: a memória de cálculo não
+    // depende de o chamador (GUI) fornecer os pontos.
+    let diagrama = {
+        let diagram = MomentDiagram::for_result(result, input.l1_m, 41);
+        let svg = diagram_svg(&diagram);
+        if svg.is_empty() {
+            String::new()
+        } else {
+            format!("<h2>Diagrama de momentos</h2>\n<figure>{svg}</figure>")
+        }
+    };
     format!(
         r#"<!DOCTYPE html>
 <html lang="pt-br">
@@ -98,6 +172,7 @@ table {{ border-collapse: collapse; margin-top: 1em; }}
 th, td {{ border: 1px solid #999; padding: 4px 10px; text-align: right; }}
 th {{ background: #eee; }}
 .neg {{ color: #a00; }}
+figure {{ margin: 1em 0; }}
 footer {{ margin-top: 2em; font-size: 0.85em; color: #666; }}
 </style>
 </head>
@@ -125,6 +200,7 @@ footer {{ margin-top: 2em; font-size: 0.85em; color: #666; }}
 <tr><td>Positivo no vão</td><td>{mpos:.3}</td></tr>
 <tr class="neg"><td>Negativo nos apoios</td><td>{mneg:.3}</td></tr>
 </table>
+{diagrama}
 <footer>Gerado pelo FreeRusch — reimplementação livre do método de Rüsch.
 Valores de tabela sujeitos à homologação final das tabelas completas.</footer>
 </body>
@@ -140,6 +216,7 @@ Valores de tabela sujeitos à homologação final das tabelas completas.</footer
         beta = beta,
         mpos = result.max_positive,
         mneg = result.max_negative,
+        diagrama = diagrama,
     )
 }
 
@@ -212,5 +289,36 @@ mod tests {
         let content = std::fs::read_to_string(&path).expect("leitura");
         assert!(content.contains("</html>"));
         std::fs::remove_dir_all(&dir).ok();
+    }
+
+    #[test]
+    fn report_embeds_diagram_svg() {
+        let (input, result) = sample();
+        let html = render_html(&input, &result);
+        assert!(html.contains("<svg"));
+        assert!(html.contains("polyline"));
+        assert!(!html.contains("NaN"));
+    }
+
+    #[test]
+    fn diagram_svg_survives_zero_moment_range() {
+        // Diagrama inteiramente nulo: a escala vertical não pode dividir por zero.
+        let flat = MomentResult {
+            max_positive: 0.0,
+            max_negative: 0.0,
+            alpha: 0.0,
+            beta: None,
+        };
+        let d = MomentDiagram::for_result(&flat, 8.0, 9);
+        let svg = diagram_svg(&d);
+        assert!(svg.contains("polyline"));
+        assert!(!svg.contains("NaN"));
+        assert!(!svg.to_lowercase().contains("inf"));
+    }
+
+    #[test]
+    fn empty_diagram_renders_nothing() {
+        let empty = MomentDiagram { points: Vec::new() };
+        assert!(diagram_svg(&empty).is_empty());
     }
 }
