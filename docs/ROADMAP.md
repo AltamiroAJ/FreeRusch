@@ -32,15 +32,15 @@ Prefixos de ID: `R` bloqueio/risco · `D` domínio de engenharia · `I` infraest
 | GUI | abas Inputs / Results / Report |
 | Relatório | HTML autocontido declarando tabela, hipóteses e coeficientes |
 | Projeto | `.frus` JSON versionado (esquema v2), escrita atômica |
-| Testes | 45 (28 core · 11 project · 5 report · 1 doctest) |
+| Testes | 38 (21 core · 11 project · 5 report · 1 doctest) |
 | CI | fmt · clippy `-D warnings` · test · build em Linux/Windows/macOS |
 | Tabelas de Rüsch | 186 de 186 embarcadas (workbook do IME) — ver [R1](#r1--concluído) |
 | Confiabilidade do resultado | validado contra o workbook e as notas do IME (ver R1 e R2) |
 
 > **Estado dos coeficientes.** As 186 tabelas de Rüsch estão embarcadas e o motor
 > calcula por elas; os caminhos de carga permanente e carga móvel foram validados
-> contra duas fontes independentes (R1 e R2). O bloco simplificado antigo segue no
-> crate apenas por compatibilidade até ser removido (item D4).
+> contra duas fontes independentes (R1 e R2). O bloco simplificado antigo foi
+> **removido** (D4): existe um único caminho de cálculo.
 
 ---
 
@@ -140,8 +140,8 @@ número inventado; conferir contra o documento original antes de usar essas cél
 
 **Concluído:** as tabelas estão embarcadas e o motor calcula por elas. A GUI
 escolhe a tabela por número e o relatório declara tabela, hipóteses e
-coeficientes. O bloco simplificado antigo (`RuschTable`/`design_moment`) fica no
-crate apenas por compatibilidade, até D4 removê-lo.
+coeficientes. O bloco simplificado antigo foi removido (D4), restando um único
+caminho de cálculo.
 
 **Pendência menor (não bloqueia):** decidir a semântica dos prefixos de rótulo
 `¾`, `(+)`, `-`, `_`. Os coeficientes numéricos não dependem disso.
@@ -151,9 +151,9 @@ crate apenas por compatibilidade, até D4 removê-lo.
 | ID | Item | Aceite | Depende |
 |---|---|---|---|
 | D1 ✅ | Coeficiente de impacto vertical φ: `1,4 − 0,007·lx` | `impact_coefficient()` com teste em duas fontes (1,351 e 1,38) | — |
-| D2 | Cargas de passeio e passarela: 3,0 kN/m² (geral) e 5,0 kN/m² (elemento direto/passarela) como entradas opcionais | teste de combinação com e sem passeio | — |
+| D2 | Cargas de passeio e passarela: 3,0 kN/m² (geral) e 5,0 kN/m² (elemento direto/passarela) | **adiado para a v0.2.0**: é feature nova, não faz parte do cálculo por tabela nem bloqueia a v0.1.0 | — |
 | D3 | ~~`design_moment` usa `VehicleGeometry::lane_count`~~ — **obsoleto**: o modelo por tabela não conta faixas; a regra de faixas era do motor simplificado | — | — |
-| D4 | Remover do crate o bloco simplificado histórico (`RuschTable`, `EdgeCondition`, `design_moment`, `bending_moment`, `moment_diagram`, `MomentDiagram`) | API pública sem caminho duplicado; testes antigos removidos | — |
+| D4 ✅ | Remover do crate o bloco simplificado histórico (`RuschTable`, `EdgeCondition`, `design_moment`, `bending_moment`, `moment_diagram`, `MomentDiagram`, `load_per_lane_knm`) | remanescentes verificados por grep, crate com 1 014 linhas e um único caminho de cálculo | — |
 | D5 ✅ | Diagrama de momentos sintético (parábola não calculada) | **resolvido por remoção**: o desenho enganoso saiu da GUI e do HTML; o relatório traz a tabela de momentos por resultante | — |
 | D6 | ~~`SlabInput` ganha `spans`/`edge`~~ — **obsoleto**: `SlabInput` foi substituído por `RuschDesignInput` | — | — |
 | D7 | ~~Validar `spans` na borda~~ — **obsoleto**: não há mais conceito de vãos no modelo por tabela; a validação agora é de tabela existente e dimensões | — | — |
@@ -196,12 +196,16 @@ crate apenas por compatibilidade, até D4 removê-lo.
 ### Critério de saída da v0.1.0
 
 1. R1 e R2 fechados ✅ (tabelas embarcadas; método da carga móvel validado).
-2. D1, D8 e D9 concluídos ✅; D2, D4, D6 e D7 concluídos com testes.
-3. D5 resolvido (real ou renomeado e rotulado).
+2. D1, D8 e D9 concluídos ✅; D3, D6 e D7 obsoletos pelo modelo por tabela ✅.
+3. D5 resolvido por remoção do diagrama sintético ✅.
 4. **D11** concluído ✅: GUI e relatório calculando pelas tabelas reais.
-5. I1 e I4 concluídos; CI verde nas 3 plataformas com `--locked`.
-6. CHANGELOG publicado e tag `v0.1.0` com binários.
-7. Não existe mais aviso de "preliminar" na GUI nem no HTML ✅.
+5. **D4** concluído ✅: um único caminho de cálculo no crate.
+6. I1 e I4 concluídos ✅ (`Cargo.lock` versionado); CI verde nas 3 plataformas.
+7. Não existe mais aviso de "preliminar" ✅.
+8. **Pendente do mantenedor:** merge do PR, tag `v0.1.0` e binários assinados
+   (dependem dos segredos e do ícone).
+
+D2 (cargas de passeio) saiu da v0.1.0: é feature nova, foi para a v0.2.0 (E10).
 
 ---
 
@@ -220,6 +224,7 @@ Origem: [phase-3-uls-reinforcement](prompts/phase-3-uls-reinforcement.md).
 | E7 | Aba **Reinforcement** na GUI, com destaque de pontos onde x/d excede o limite |
 | E8 | Exportação CSV dos momentos e PDF via `craft-print` |
 | E9 | CHANGELOG 0.2.0 e tag `v0.2.0` |
+| E10 | Cargas de passeio e passarela (3,0 / 5,0 kN/m²) como entradas opcionais, com teste de combinação (era D2) |
 
 # v1.0.0 — Fase 4: consolidação
 

@@ -44,12 +44,6 @@ fechar (ver [docs/ROADMAP.md](docs/ROADMAP.md)).
   `craft-ui` fornece o átomo de aba e a matemática de larguras, mas não um
   contêiner de abas. A aba *Results* mostra coeficientes, momentos e uma
   pré-visualização do diagrama.
-- **Diagrama de momentos em SVG na memória de cálculo.** `freerusch_report::diagram_svg`
-  gera um SVG autocontido (sem JavaScript nem arquivos externos), embutido
-  automaticamente por `render_html`.
-- **`MomentDiagram` em `freerusch-core`**, com `min_moment`, `max_moment` e
-  `max_abs_moment`, para que a GUI e o relatório compartilhem a mesma
-  representação do diagrama.
 - **Crate `freerusch-project` e o formato `.frus`.** Projeto completo em JSON
   versionado (`schema_version`), validado antes de tocar o disco e gravado com
   escrita atômica (`craft-atomic`). Versões de esquema mais novas são recusadas em
@@ -75,6 +69,11 @@ fechar (ver [docs/ROADMAP.md](docs/ROADMAP.md)).
 - **Aviso de resultados preliminares.** `RUSCH_TABLES_PRELIMINARY` e os avisos na
   GUI e no HTML foram removidos: deixaram de ser verdade quando o motor passou a
   usar as tabelas embarcadas.
+- **Motor simplificado histórico.** `RuschTable`, `EdgeCondition`, `RuschPoint`,
+  `RuschRow`, `MomentResult`, `MomentDiagram`, `design_moment`, `bending_moment`,
+  `moment_diagram` e `load_per_lane_knm` foram removidos do crate. Eram o motor do
+  esqueleto inicial, que não usava as tabelas embarcadas e podia produzir números
+  enganosos se chamado; agora existe **um único caminho de cálculo**.
 - **Diagrama de momentos sintético** da GUI e do relatório: era uma parábola
   desenhada, não o diagrama calculado. O relatório agora traz a tabela de momentos
   por resultante.

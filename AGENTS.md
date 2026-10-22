@@ -83,9 +83,10 @@ permanent load via `uniform_load_moments()` (`M = k·q·lx²`) and live load via
 `M_d = 1.35·M_g + 1.5·M_q`. Both paths are validated against the workbook's
 worked example and the IME course notes — see `docs/ROADMAP.md` (R1/R2).
 
-The historical simplified block (`RuschTable`, `design_moment`, `bending_moment`,
-`MomentDiagram`) is still exported for compatibility but **must not** be used by
-new code; roadmap item D4 removes it.
+The historical simplified block was removed in D4: there is exactly **one**
+calculation path. Do not reintroduce a second coefficient model "for
+compatibility" — a table-based result and a simplified result that disagree is
+worse than having no fallback at all.
 
 ## Release
 

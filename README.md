@@ -28,14 +28,14 @@ freerusch/
 ├── .github/workflows/ci.yml    # fmt · clippy · test · build (Linux/Windows/macOS)
 ├── crates/
 │   ├── freerusch-core/         # motor de cálculo PURO (sem UI):
-│   │                           #  - RuschTable / EdgeCondition / interpolação linear
-│   │                           #  - TrainType / VehicleGeometry (NBR 7188:2013)
-│   │                           #  - design_moment / moment_diagram / MomentDiagram
+│   │                           #  - 186 tabelas de Rüsch embarcadas (JSON)
+│   │                           #  - uniform_load_moments / live_load_moments
+│   │                           #  - impact_coefficient / load_spread_width_m
+│   │                           #  - design_moments (γg·M_g + γq·M_q)
 │   ├── freerusch-report/       # memória de cálculo em HTML:
-│   │                           #  - render_html (escape seguro de entradas)
-│   │                           #  - diagram_svg (diagrama de momentos inline)
+│   │                           #  - render_html (tabela, hipóteses, coeficientes)
 │   │                           #  - write_report via craft-atomic (escrita atômica)
-│   └── freerusch-project/      # arquivo de projeto `.frus` (JSON versionado):
+│   └── freerusch-project/      # arquivo de projeto `.frus` (JSON v2):
 │                               #  - Project, save/load com validação prévia
 └── apps/
     └── freerusch/              # binário GUI (eframe/egui + craft-ui/craft-settings)
