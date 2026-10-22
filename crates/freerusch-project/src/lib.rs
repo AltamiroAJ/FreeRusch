@@ -5,22 +5,23 @@
 //! nunca corrompe o projeto anterior.
 //!
 //! Este crate é a única camada que conhece o formato em disco. A GUI e a CLI
-//! conversam com [`Project`], nunca com o JSON diretamente, de modo que a
-//! migração de esquema (Fase 3: `.frus` v2 com armadura) fique contida aqui.
+//! conversam com [`Project`], nunca com o JSON diretamente.
+//!
+//! # Esquema v2
+//!
+//! A v2 trocou o modelo antigo (vãos/viga/trem-tipo genéricos) pelo
+//! dimensionamento efetivo por **tabela de Rüsch**: número da tabela, espessuras,
+//! pavimento, distância entre rodas e as cargas. Campos ausentes de um arquivo v1
+//! caem no `Default`, que é o exemplo resolvido do workbook.
 
 use std::path::Path;
 
-use freerusch_core::{EdgeCondition, TrainType};
+use freerusch_core::{RuschDesignInput, RuschTableData, TrainType};
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
 /// Versão do esquema de arquivo entendida por esta build.
-pub const SCHEMA_VERSION: u32 = 1;
-
-/// Rótulo de [`EdgeCondition::SimplySupported`] no arquivo de projeto.
-pub const EDGE_SIMPLY_SUPPORTED: &str = "simply-supported";
-/// Rótulo de [`EdgeCondition::Clamped`] no arquivo de projeto.
-pub const EDGE_CLAMPED: &str = "clamped";
+pub const SCHEMA_VERSION: u32 = 2;
 
 /// Erros de leitura, validação e gravação do arquivo de projeto.
 #[derive(Debug, Error)]
@@ -42,29 +43,28 @@ pub enum ProjectError {
     /// O rótulo de trem-tipo não corresponde a nenhum valor conhecido.
     #[error("trem-tipo desconhecido no projeto: \"{0}\"")]
     UnknownTrain(String),
-    /// O rótulo de condição de borda não corresponde a nenhum valor conhecido.
-    #[error("condição de borda desconhecida no projeto: \"{0}\"")]
-    UnknownEdge(String),
+    /// A tabela de Rüsch indicada não existe no acervo embarcado.
+    #[error("tabela de Rüsch inexistente no projeto: Nr {number}.{variant:?}")]
+    UnknownTable {
+        /// Número da tabela.
+        number: u32,
+        /// Variante informada.
+        variant: Option<u8>,
+    },
     /// Dimensão ausente, nula, negativa ou não finita.
     #[error("dimensão inválida no projeto: {name} = {value}")]
     InvalidDimension {
-        /// Nome do campo (ex.: `"l1_m"`).
+        /// Nome do campo (ex.: `"lx_m"`).
         name: &'static str,
         /// Valor recebido.
         value: f64,
-    },
-    /// Número de vãos fora do que as tabelas de Rüsch cobrem.
-    #[error("número de vãos inválido no projeto: {spans} (esperado entre 1 e 4)")]
-    InvalidSpans {
-        /// Número de vãos recebido.
-        spans: usize,
     },
 }
 
 /// Um projeto de laje salvo em `.frus`.
 ///
-/// Os campos são públicos para que a GUI possa editá-los diretamente e para
-/// que o `Default` sirva de ponto de partida em arquivos incompletos.
+/// Os campos são públicos para que a GUI possa editá-los diretamente e para que
+/// o `Default` sirva de ponto de partida em arquivos incompletos.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(default)]
 pub struct Project {
@@ -72,34 +72,47 @@ pub struct Project {
     pub schema_version: u32,
     /// Identificação da obra/painel (texto livre).
     pub title: String,
-    /// Trem-tipo da NBR 7188:2013 (`"TB-450"` ou `"TB-240"`).
+    /// Trem-tipo da NBR 7188:2013 (`"TB-450"` ou `"TB-240"`), informativo.
     pub train: String,
-    /// Condição de borda (`"simply-supported"` ou `"clamped"`).
-    pub edge: String,
-    /// Número de vãos do tabuleiro contínuo.
-    pub spans: usize,
-    /// Vão considerado `l₁` (m).
-    pub l1_m: f64,
-    /// Vão vizinho `l₂` (m); `0.0` para painel isolado.
-    pub l2_m: f64,
-    /// Largura transversal do tabuleiro `b` (m).
-    pub deck_width_m: f64,
     /// Classe do concreto (ex.: `"C25/30"`).
     pub concrete_class: String,
+    /// Número da tabela de Rüsch.
+    pub table_number: u32,
+    /// Variante da tabela (o `.1`/`.2` do nome), quando existir.
+    pub table_variant: Option<u8>,
+    /// Vão transversal `lx` (m).
+    pub lx_m: f64,
+    /// Espessura da laje (m).
+    pub slab_m: f64,
+    /// Espessura da pavimentação (m).
+    pub pavement_m: f64,
+    /// Distância transversal entre rodas (m) — entrada `lx/a` da tabela.
+    pub wheel_spacing_m: f64,
+    /// Carga permanente distribuída (kN/m²).
+    pub permanent_load_kn_m2: f64,
+    /// Carga por roda do trem-tipo (kN).
+    pub wheel_load_kn: f64,
+    /// Carga uniforme da pista (kN/m²).
+    pub uniform_load_kn_m2: f64,
 }
 
 impl Default for Project {
+    /// Padrões iguais ao exemplo resolvido do workbook (tabela Nr 65.1).
     fn default() -> Self {
         Project {
             schema_version: SCHEMA_VERSION,
             title: String::new(),
             train: TrainType::TB450.label().to_string(),
-            edge: EDGE_SIMPLY_SUPPORTED.to_string(),
-            spans: 1,
-            l1_m: 6.0,
-            l2_m: 0.0,
-            deck_width_m: 6.0,
             concrete_class: "C25/30".to_string(),
+            table_number: 65,
+            table_variant: Some(1),
+            lx_m: 7.0,
+            slab_m: 0.26,
+            pavement_m: 0.07,
+            wheel_spacing_m: 2.0,
+            permanent_load_kn_m2: 10.5209,
+            wheel_load_kn: 75.0,
+            uniform_load_kn_m2: 5.0,
         }
     }
 }
@@ -118,17 +131,27 @@ impl Project {
         Err(ProjectError::UnknownTrain(self.train.clone()))
     }
 
-    /// Condição de borda tipada, ou erro se o rótulo gravado for desconhecido.
-    pub fn edge_condition(&self) -> Result<EdgeCondition, ProjectError> {
-        let label = self.edge.trim();
-        if label.eq_ignore_ascii_case(EDGE_SIMPLY_SUPPORTED) || label.eq_ignore_ascii_case("pinned")
-        {
-            Ok(EdgeCondition::SimplySupported)
-        } else if label.eq_ignore_ascii_case(EDGE_CLAMPED) || label.eq_ignore_ascii_case("fixed") {
-            Ok(EdgeCondition::Clamped)
-        } else {
-            Err(ProjectError::UnknownEdge(self.edge.clone()))
+    /// Entrada de cálculo do `freerusch-core`, pronta para [`freerusch_core::design_moments`].
+    #[must_use]
+    pub fn design_input(&self) -> RuschDesignInput {
+        RuschDesignInput {
+            table_number: self.table_number,
+            table_variant: self.table_variant,
+            lx_m: self.lx_m,
+            slab_m: self.slab_m,
+            pavement_m: self.pavement_m,
+            wheel_spacing_m: self.wheel_spacing_m,
+            permanent_load_kn_m2: self.permanent_load_kn_m2,
+            wheel_load_kn: self.wheel_load_kn,
+            uniform_load_kn_m2: self.uniform_load_kn_m2,
         }
+    }
+
+    /// Rótulo legível da tabela (`"Nr 65.1"`), quando ela existe no acervo.
+    #[must_use]
+    pub fn table_label(&self) -> Option<&'static str> {
+        RuschTableData::find(self.table_number, self.table_variant)
+            .map(|table| table.sheet.as_str())
     }
 
     /// Valida o projeto inteiro antes de calcular ou gravar.
@@ -139,22 +162,29 @@ impl Project {
                 supported: SCHEMA_VERSION,
             });
         }
-        if !(self.spans >= 1 && self.spans <= 4) {
-            return Err(ProjectError::InvalidSpans { spans: self.spans });
-        }
-        for (name, value) in [("l1_m", self.l1_m), ("deck_width_m", self.deck_width_m)] {
+        for (name, value) in [
+            ("lx_m", self.lx_m),
+            ("wheel_spacing_m", self.wheel_spacing_m),
+            ("permanent_load_kn_m2", self.permanent_load_kn_m2),
+            ("wheel_load_kn", self.wheel_load_kn),
+            ("uniform_load_kn_m2", self.uniform_load_kn_m2),
+        ] {
             if !(value.is_finite() && value > 0.0) {
                 return Err(ProjectError::InvalidDimension { name, value });
             }
         }
-        if !(self.l2_m.is_finite() && self.l2_m >= 0.0) {
-            return Err(ProjectError::InvalidDimension {
-                name: "l2_m",
-                value: self.l2_m,
+        for (name, value) in [("slab_m", self.slab_m), ("pavement_m", self.pavement_m)] {
+            if !(value.is_finite() && value > 0.0) {
+                return Err(ProjectError::InvalidDimension { name, value });
+            }
+        }
+        if RuschTableData::find(self.table_number, self.table_variant).is_none() {
+            return Err(ProjectError::UnknownTable {
+                number: self.table_number,
+                variant: self.table_variant,
             });
         }
         self.train_type()?;
-        self.edge_condition()?;
         Ok(())
     }
 

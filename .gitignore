@@ -1,8 +1,10 @@
 /target
 **/target
-Cargo.lock
 *.rlib
 *.d
+
+# release packaging output
+/dist
 
 # staging files left by craft-atomic after an abnormal exit
 .*.craft_tmp

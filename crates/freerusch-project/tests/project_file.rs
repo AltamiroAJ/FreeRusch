@@ -1,10 +1,10 @@
-//! Aceitação do arquivo de projeto `.frus` (Fase 2, tarefa 4).
+//! Aceitação do arquivo de projeto `.frus` (esquema v2).
 //!
 //! Estes testes usam apenas a API pública, como um consumidor real (GUI ou CLI).
 
 use std::path::PathBuf;
 
-use freerusch_core::{EdgeCondition, TrainType};
+use freerusch_core::TrainType;
 use freerusch_project::{Project, ProjectError, SCHEMA_VERSION};
 
 fn temp_dir(tag: &str) -> PathBuf {
@@ -16,13 +16,15 @@ fn temp_dir(tag: &str) -> PathBuf {
 fn sample() -> Project {
     Project {
         title: "Viaduto Centro — Painel P1".to_string(),
-        train: TrainType::TB450.label().to_string(),
-        edge: "simply-supported".to_string(),
-        spans: 2,
-        l1_m: 8.0,
-        l2_m: 8.0,
-        deck_width_m: 6.0,
-        concrete_class: "C25/30".to_string(),
+        table_number: 65,
+        table_variant: Some(1),
+        lx_m: 7.0,
+        slab_m: 0.26,
+        pavement_m: 0.07,
+        wheel_spacing_m: 2.0,
+        permanent_load_kn_m2: 10.5209,
+        wheel_load_kn: 75.0,
+        uniform_load_kn_m2: 5.0,
         ..Default::default()
     }
 }
@@ -36,10 +38,7 @@ fn json_round_trip_preserves_fields() {
     let back = Project::from_json(&json).expect("desserializar");
     assert_eq!(back, project);
     assert_eq!(back.train_type().expect("trem"), TrainType::TB450);
-    assert_eq!(
-        back.edge_condition().expect("borda"),
-        EdgeCondition::SimplySupported
-    );
+    assert_eq!(back.table_label(), Some("Nr 65.1"));
 }
 
 #[test]
@@ -58,11 +57,43 @@ fn save_and_load_round_trip_on_disk() {
 }
 
 #[test]
-fn missing_fields_fall_back_to_defaults() {
-    let project = Project::from_json(r#"{"l1_m": 12.0}"#).expect("campos ausentes usam default");
-    assert_eq!(project.l1_m, 12.0);
+fn missing_fields_fall_back_to_the_workbook_example() {
+    let project = Project::from_json(r#"{"lx_m": 8.0}"#).expect("campos ausentes usam default");
+    assert_eq!(project.lx_m, 8.0);
     assert_eq!(project.schema_version, SCHEMA_VERSION);
-    assert_eq!(project.train, TrainType::TB450.label());
+    assert_eq!(project.table_number, 65);
+    assert_eq!(project.table_variant, Some(1));
+    assert_eq!(project.slab_m, 0.26);
+}
+
+#[test]
+fn v1_project_still_loads() {
+    // Arquivo do esquema v1: os campos novos caem no default e os antigos são
+    // ignorados. A validação não pode rejeitar um arquivo legítimo.
+    let v1 = r#"{
+      "schema_version": 1,
+      "title": "projeto antigo",
+      "train": "TB-240",
+      "edge": "clamped",
+      "spans": 2,
+      "l1_m": 8.0,
+      "deck_width_m": 6.0
+    }"#;
+    let project = Project::from_json(v1).expect("v1 deve carregar");
+    assert_eq!(project.title, "projeto antigo");
+    assert_eq!(project.train, "TB-240");
+    assert_eq!(project.table_number, 65);
+    assert_eq!(project.lx_m, 7.0);
+}
+
+#[test]
+fn rejects_unknown_table() {
+    let mut project = sample();
+    project.table_number = 4242;
+    assert!(matches!(
+        project.validate(),
+        Err(ProjectError::UnknownTable { number: 4242, .. })
+    ));
 }
 
 #[test]
@@ -72,16 +103,6 @@ fn rejects_unknown_train() {
     assert!(matches!(
         project.train_type(),
         Err(ProjectError::UnknownTrain(_))
-    ));
-}
-
-#[test]
-fn rejects_unknown_edge_condition() {
-    let mut project = sample();
-    project.edge = "welded".to_string();
-    assert!(matches!(
-        project.edge_condition(),
-        Err(ProjectError::UnknownEdge(_))
     ));
 }
 
@@ -98,11 +119,26 @@ fn rejects_newer_schema_version() {
 #[test]
 fn rejects_non_positive_dimension() {
     let mut project = sample();
-    project.l1_m = 0.0;
+    project.lx_m = 0.0;
     assert!(matches!(
         project.validate(),
-        Err(ProjectError::InvalidDimension { name: "l1_m", .. })
+        Err(ProjectError::InvalidDimension { name: "lx_m", .. })
     ));
+}
+
+#[test]
+fn design_input_carries_the_project_values() {
+    let project = sample();
+    let input = project.design_input();
+    assert_eq!(input.table_number, 65);
+    assert_eq!(input.table_variant, Some(1));
+    assert_eq!(input.lx_m, 7.0);
+    assert_eq!(input.slab_m, 0.26);
+    assert_eq!(input.pavement_m, 0.07);
+    assert_eq!(input.wheel_spacing_m, 2.0);
+    assert_eq!(input.permanent_load_kn_m2, 10.5209);
+    assert_eq!(input.wheel_load_kn, 75.0);
+    assert_eq!(input.uniform_load_kn_m2, 5.0);
 }
 
 #[test]
@@ -110,9 +146,7 @@ fn load_rejects_malformed_json() {
     let dir = temp_dir("bad");
     let path = dir.join("quebrado.frus");
     std::fs::write(&path, "{ isto não é json").expect("escrever lixo");
-
     assert!(matches!(Project::load(&path), Err(ProjectError::Json(_))));
-
     std::fs::remove_dir_all(&dir).ok();
 }
 

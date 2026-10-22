@@ -22,17 +22,20 @@ bibliotecas compartilhadas da família consumidas do repositório
 freerusch/
 ├── Cargo.toml                  # workspace + [workspace.dependencies] (craft-* por git rev)
 ├── rust-toolchain.toml         # canal stable
+├── docs/ROADMAP.md             # roadmap, critérios de aceite e bloqueios
+├── CHANGELOG.md                # histórico de mudanças (Keep a Changelog)
+├── tools/                      # extrator das tabelas de Rüsch para o core
 ├── .github/workflows/ci.yml    # fmt · clippy · test · build (Linux/Windows/macOS)
 ├── crates/
 │   ├── freerusch-core/         # motor de cálculo PURO (sem UI):
-│   │                           #  - RuschTable / EdgeCondition / interpolação linear
-│   │                           #  - TrainType (TB-450 / TB-240, NBR 7188:2013)
-│   │                           #  - bending_moment / design_moment / moment_diagram
-│   └── freerusch-report/       # memória de cálculo em HTML:
-│                               #  - render_html (escape seguro de entradas)
-│                               #  - diagram_svg (diagrama de momentos inline)
-│                               #  - write_report via craft-atomic (escrita atômica)
-│   ├── freerusch-project/      # arquivo de projeto `.frus` (JSON versionado):
+│   │                           #  - 186 tabelas de Rüsch embarcadas (JSON)
+│   │                           #  - uniform_load_moments / live_load_moments
+│   │                           #  - impact_coefficient / load_spread_width_m
+│   │                           #  - design_moments (γg·M_g + γq·M_q)
+│   ├── freerusch-report/       # memória de cálculo em HTML:
+│   │                           #  - render_html (tabela, hipóteses, coeficientes)
+│   │                           #  - write_report via craft-atomic (escrita atômica)
+│   └── freerusch-project/      # arquivo de projeto `.frus` (JSON v2):
 │                               #  - Project, save/load com validação prévia
 └── apps/
     └── freerusch/              # binário GUI (eframe/egui + craft-ui/craft-settings)
@@ -56,11 +59,12 @@ cargo run -p freerusch          # abre a janela "FreeRusch"
 cargo test --workspace          # testes do motor de cálculo e do relatório
 ```
 
-A janela tem três abas: **Inputs** (dados do painel), **Results**
-(coeficientes, momentos e diagrama) e **Report** (memória de cálculo).
-O projeto completo é gravado em `.frus` (JSON versionado, escrita atômica via
-`craft-atomic`) e a memória de cálculo é exportada em HTML autocontido, com o
-diagrama de momentos embutido como SVG — sem arquivos externos nem JavaScript.
+A janela tem três abas: **Inputs** (tabela de Rüsch e cargas), **Results**
+(momentos característicos e de projeto, por resultante) e **Report** (memória de
+cálculo). O projeto completo é gravado em `.frus` (JSON versionado, escrita
+atômica via `craft-atomic`) e a memória de cálculo é exportada em HTML
+autocontido, declarando a tabela usada, as hipóteses e os coeficientes — sem
+arquivos externos nem JavaScript.
 
 Defina `FREERUSCH_NO_PREFS=1` para rodar sem criar `config.toml` no perfil do
 sistema (útil em CI/containers).
@@ -68,23 +72,96 @@ sistema (útil em CI/containers).
 ## Uso como biblioteca
 
 ```rust
-use freerusch_core::{bending_moment, EdgeCondition, RuschTable, TrainType};
+use freerusch_core::{RuschDesignInput, design_moments};
 
-let table = RuschTable::for_edges(EdgeCondition::SimplySupported);
-let m = bending_moment(&table, &TrainType::TB450, /*l1=*/ 8.0, /*l2=*/ 0.0, /*q=*/ 25.0)?;
-println!("M⁺ = {:.2} kN·m/m (α = {:.4})", m.max_positive, m.alpha);
+// Exemplo resolvido do workbook: tabela Nr 65.1, lx = 7,00 m.
+let input = RuschDesignInput {
+    table_number: 65,
+    table_variant: Some(1),
+    lx_m: 7.0,
+    slab_m: 0.26,
+    pavement_m: 0.07,
+    wheel_spacing_m: 2.0,
+    permanent_load_kn_m2: 10.5209,
+    wheel_load_kn: 75.0,
+    uniform_load_kn_m2: 5.0,
+};
+let moments = design_moments(&input)?;
+for m in &moments {
+    println!(
+        "{:<4} M_g {:8.3}  M_q {:8.3}  M_d {:8.3}",
+        m.resultant, m.permanent, m.live, m.design
+    );
+}
 ```
 
-## Status do domínio (roadmap)
+As **186 tabelas** de Rüsch (DIN/IBSW) estão embarcadas em
+`crates/freerusch-core/data/rusch_tables.json` — 56.693 coeficientes — e são
+endereçadas por número, como nas tabelas impressas:
 
-Este repositório está na **Fase 2**:
+```rust
+use freerusch_core::RuschTableData;
 
-- [x] Workspace, CI multiplataforma, motor mínimo com testes.
-- [ ] Tabelas de Rüsch completas (todos os vínculos e faixas l₂/l₁).
-- [ ] Trens-tipo NBR 7188:2013 com roda-paleta, `b_min` e fator θ por faixa de influência.
-- [x] Diagramas de momento vetoriais (SVG) na memória de cálculo.
-- [x] Arquivo de projeto (`.frus`) salvo atomicamente via `craft-atomic`.
+let table = RuschTableData::find(65, Some(1)).expect("tabela Nr 65.1");
+assert_eq!(table.sheet, "Nr 65.1");
+```
+
+> Os caminhos de cálculo são validados contra **duas fontes independentes**: o
+> exemplo resolvido do workbook do IME (seis momentos com erro < 0,2 %) e as notas
+> de aula do mesmo curso (φ = 1,351 e espraiamento t = 0,69 m idênticos). Detalhes
+> e fontes em [`docs/ROADMAP.md`](docs/ROADMAP.md).
+
+## Roadmap
+
+O planejamento completo — itens, critérios de aceite, dependências e bloqueios —
+está em [`docs/ROADMAP.md`](docs/ROADMAP.md). O histórico de mudanças fica no
+[`CHANGELOG.md`](CHANGELOG.md).
+
+Resumo:
+
+- **v0.1.0** (em andamento) — motor de cálculo sobre as tabelas de Rüsch
+  embarcadas, com carga permanente e carga móvel validadas contra o exemplo do
+  workbook, e release no padrão da família Craft.
+- **v0.2.0** — armadura e ELU (NBR 6118), combinações de ações, `.frus` v2.
+- **v1.0.0** — consolidação: carga de pneu, i18n pt-BR/en-US, release com checksums.
+
+> **Escopo e limites desta versão.** O FreeRusch aplica o método das tabelas de
+> Rüsch, com coeficiente de impacto `φ = 1,4 − 0,007·lx` e espraiamento de roda
+> `t = √(0,20·0,50) + 2·(pav + h/2)`. A carga móvel é combinada com a permanente
+> por `M_d = 1,35·M_g + 1,5·M_q`. **Não** cobre ainda: cargas de passeio,
+> dimensionamento de armadura (NBR 6118), punção por pneu e posicionamento
+> automático crítico do trem-tipo — todos itens abertos no roadmap.
+>
+> As cargas de multidão seguem a NBR 7188:2013: **5,0 kN/m²** (TB-450) e
+> **4,0 kN/m²** (TB-240), atuando em conjunto com o veículo-tipo.
+
+## Distribuição e release
+
+O FreeRusch segue o padrão de release da família Craft: o workflow
+[`.github/workflows/release.yml`](.github/workflows/release.yml) é um chamador fino
+que delega ao pipeline compartilhado `storytold/craft-common-actions`, disparado
+por push na branch `release`. Ele produz macOS universal (DMG assinado e
+notarizado), Windows MSI (x64/x86/ARM64), Linux AppImage/deb/rpm/tar.gz, Flatpak,
+Arch, RISC-V e, opcionalmente, wasm — e publica um *draft release* com
+`SHA256SUMS.txt`.
+
+A versão vem de `[workspace.package] version` no `Cargo.toml` raiz, lida por
+[`packaging/env.sh`](packaging/env.sh) e validada como semver pelo pipeline.
+
+> **Pendências para o primeiro release assinado:** os segredos de assinatura
+> (Apple Developer ID + notarização, Azure Trusted Signing) ainda não estão
+> configurados no ambiente `release`, e o ícone do aplicativo ainda não foi
+> fornecido — ver [`assets/app-icon/README.md`](assets/app-icon/README.md). Até
+> lá, o pipeline roda apenas como *draft* de teste com `workflow_dispatch`.
+
+Convenções de desenvolvimento, gate de qualidade e proveniência dos dados estão
+em [`AGENTS.md`](AGENTS.md).
 
 ## Licença
 
-MIT OR Apache-2.0 (ver `LICENSE`).
+MIT **ou** Apache-2.0, à sua escolha — ver [`LICENSE-MIT`](LICENSE-MIT) e
+[`LICENSE-APACHE`](LICENSE-APACHE).
+
+Material de terceiros, referências normativas e a proveniência das tabelas de
+Rüsch embarcadas estão em [`NOTICE`](NOTICE) e
+[`ATTRIBUTION.md`](ATTRIBUTION.md).

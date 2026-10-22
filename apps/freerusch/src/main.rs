@@ -1,23 +1,23 @@
 //! FreeRusch — cálculo estrutural de lajes de pontes pelo método de Rüsch.
 //!
-//! GUI sobre `eframe`/`egui` com três abas: **Inputs** (entrada do painel),
-//! **Results** (coeficientes, momentos e diagrama) e **Report** (memória de
-//! cálculo em HTML). A barra de abas usa os primitivos de `craft_ui::tabs`
-//! (`fit` para larguras, `Tab::show_at` para interação e acessibilidade), já
-//! que a `craft-ui` não fornece um contêiner de abas pronto.
+//! GUI sobre `eframe`/`egui` com três abas: **Inputs** (tabela de Rüsch e
+//! cargas), **Results** (momentos característicos e de projeto) e **Report**
+//! (memória de cálculo em HTML). A barra de abas usa os primitivos de
+//! `craft_ui::tabs` (`fit` para larguras, `Tab::show_at` para interação e
+//! acessibilidade), já que a `craft-ui` não fornece um contêiner de abas pronto.
 //!
-//! Persistência: preferências em `config.toml` via `craft-settings`; o projeto
-//! completo em `.frus` via `freerusch-project` (JSON versionado, escrita
-//! atômica); a memória de cálculo em HTML via `freerusch-report`.
+//! O cálculo usa as 186 tabelas de Rüsch embarcadas em `freerusch-core`, pelos
+//! caminhos validados contra o exemplo resolvido do workbook e contra as notas
+//! de aula do IME. Persistência: preferências em `config.toml` via
+//! `craft-settings`; projeto em `.frus` via `freerusch-project`; memória de
+//! cálculo em HTML via `freerusch-report`.
 
 use std::path::Path;
 
 use eframe::egui;
-use freerusch_core::{
-    EdgeCondition, MomentDiagram, MomentResult, RuschTable, TrainType,
-    concrete_characteristic_strength, design_moment,
-};
-use freerusch_project::{EDGE_CLAMPED, EDGE_SIMPLY_SUPPORTED, Project};
+use freerusch_core::{DesignMoment, TrainType};
+use freerusch_project::Project;
+use freerusch_report::{ReportContext, render_html, write_report};
 use serde::{Deserialize, Serialize};
 
 /// Rótulos das abas, na ordem de exibição.
@@ -25,9 +25,6 @@ const TABS: [&str; 3] = ["Inputs", "Results", "Report"];
 const TAB_INPUTS: usize = 0;
 const TAB_RESULTS: usize = 1;
 const TAB_REPORT: usize = 2;
-
-/// Número de pontos usados no diagrama exibido na GUI.
-const DIAGRAM_SAMPLES: usize = 81;
 
 /// Configurações do FreeRusch persistidas em `config.toml` pela `craft-settings`.
 #[derive(Debug, Clone, PartialEq, Default, Serialize, Deserialize)]
@@ -63,13 +60,24 @@ impl craft_settings::Settings for FreeruschSettings {
     const SCHEMA_VERSION: u32 = 1;
 }
 
+/// Carga por roda e sobrecarga uniforme convencionais de cada trem-tipo.
+///
+/// `TB-450`: 450 kN em 6 rodas = 75 kN; `TB-240`: 240 kN em 6 rodas = 40 kN
+/// (média por roda — as cargas por eixo da NBR 7188 não são iguais).
+/// Sobrecargas: 5,0 e 4,0 kN/m² conforme NBR 7188:2013.
+fn train_defaults(train: TrainType) -> (f64, f64) {
+    match train {
+        TrainType::TB450 => (75.0, 5.0),
+        TrainType::TB240 => (40.0, 4.0),
+    }
+}
+
 /// Estado da aplicação.
 struct FreeruschApp {
     settings: craft_settings::SettingsStore<FreeruschSettings>,
     project: Project,
     tab: usize,
-    result: Option<MomentResult>,
-    diagram: MomentDiagram,
+    moments: Vec<DesignMoment>,
     report_html: String,
     message: String,
 }
@@ -92,8 +100,7 @@ impl FreeruschApp {
             settings: store,
             project,
             tab: TAB_INPUTS,
-            result: None,
-            diagram: MomentDiagram { points: Vec::new() },
+            moments: Vec::new(),
             report_html: String::new(),
             message: String::new(),
         };
@@ -104,78 +111,54 @@ impl FreeruschApp {
         app
     }
 
-    /// Recalcula coeficientes, momentos, diagrama e a memória de cálculo.
+    /// Recalcula os momentos característicos e de projeto.
     fn calculate(&mut self) {
-        self.result = None;
-        let train = match self.project.train_type() {
-            Ok(t) => t,
-            Err(e) => {
-                self.message = format!("Trem-tipo inválido: {e}");
-                return;
-            }
-        };
-        let edge = match self.project.edge_condition() {
-            Ok(e) => e,
-            Err(e) => {
-                self.message = format!("Condição de borda inválida: {e}");
-                return;
-            }
-        };
-        let fck = match concrete_characteristic_strength(&self.project.concrete_class) {
-            Ok(f) => f,
-            Err(e) => {
-                self.message = format!("Concreto inválido: {e}");
-                return;
-            }
-        };
-        let table = RuschTable::for_edges(edge);
-        match design_moment(
-            &table,
-            train,
-            self.project.spans,
-            self.project.l1_m,
-            self.project.l2_m,
-            self.project.deck_width_m,
-            fck,
-        ) {
-            Ok(moment) => {
-                self.diagram =
-                    MomentDiagram::for_result(&moment, self.project.l1_m, DIAGRAM_SAMPLES);
-                self.report_html =
-                    freerusch_report::render_html(&self.slab_input(train, edge), &moment);
-                self.result = Some(moment);
-                self.message = format!(
-                    "{} · {:.2} m → M⁺ = {:.2} kN·m/m (α = {:.4})",
-                    train.label(),
-                    self.project.l1_m,
-                    moment.max_positive,
-                    moment.alpha
+        self.message.clear();
+        if let Err(error) = self.project.validate() {
+            self.moments.clear();
+            self.report_html.clear();
+            self.message = format!("Projeto inválido: {error}");
+            return;
+        }
+
+        let input = self.project.design_input();
+        match freerusch_core::design_moments(&input) {
+            Ok(moments) => {
+                let title = self.project.title.clone();
+                let concrete = self.project.concrete_class.clone();
+                let label = self.project.table_label().unwrap_or("—").to_string();
+                self.report_html = render_html(
+                    &input,
+                    &ReportContext {
+                        title: &title,
+                        concrete_class: &concrete,
+                        table_label: &label,
+                    },
+                    &moments,
                 );
+                if let Some(mxm) = moments.iter().find(|moment| moment.resultant == "Mxm") {
+                    self.message = format!(
+                        "{label} · lx {:.2} m → M_d(Mxm) = {:.2} kN·m/m \
+                         (M_g {:.2} + M_q {:.2})",
+                        input.lx_m, mxm.design, mxm.permanent, mxm.live
+                    );
+                } else {
+                    self.message = format!("Cálculo concluído com {label}.");
+                }
+                self.moments = moments;
                 self.tab = TAB_RESULTS;
             }
-            Err(e) => self.message = format!("Erro de cálculo: {e}"),
+            Err(error) => {
+                self.moments.clear();
+                self.report_html.clear();
+                self.message = format!("Erro de cálculo: {error}");
+            }
         }
-    }
-
-    /// Monta o `SlabInput` do relatório a partir do estado atual.
-    fn slab_input(&self, train: TrainType, _edge: EdgeCondition) -> freerusch_report::SlabInput {
-        freerusch_report::SlabInput::new(
-            if self.project.title.is_empty() {
-                "FreeRusch — painel corrente"
-            } else {
-                &self.project.title
-            },
-            train,
-            self.project.l1_m,
-            self.project.l2_m,
-            self.project.deck_width_m,
-            &self.project.concrete_class,
-        )
     }
 
     /// Exporta a memória de cálculo em HTML com escrita atômica.
     fn export_report(&mut self) {
-        if self.result.is_none() {
+        if self.moments.is_empty() {
             self.calculate();
         }
         if self.report_html.is_empty() {
@@ -183,7 +166,7 @@ impl FreeruschApp {
             return;
         }
         let path = self.settings.get().general.last_report_path.clone();
-        match freerusch_report::write_report(Path::new(&path), &self.report_html) {
+        match write_report(Path::new(&path), &self.report_html) {
             Ok(()) => self.message = format!("Memória escrita em {path}"),
             Err(e) => self.message = format!("Falha na exportação: {e}"),
         }
@@ -294,55 +277,10 @@ fn tab_bar(ui: &mut egui::Ui, selected: &mut usize) -> bool {
     changed
 }
 
-/// Desenha o diagrama de momentos no espaço disponível.
-fn draw_diagram(ui: &mut egui::Ui, diagram: &MomentDiagram) {
-    let size = egui::vec2(ui.available_width(), 180.0);
-    let (rect, _) = ui.allocate_exact_size(size, egui::Sense::hover());
-    let painter = ui.painter_at(rect);
-    painter.rect_filled(
-        rect,
-        egui::CornerRadius::same(4),
-        ui.visuals().extreme_bg_color,
-    );
-
-    let mid_y = rect.center().y;
-    painter.line_segment(
-        [
-            egui::pos2(rect.left(), mid_y),
-            egui::pos2(rect.right(), mid_y),
-        ],
-        egui::Stroke::new(1.0, ui.visuals().widgets.noninteractive.fg_stroke.color),
-    );
-
-    let span = diagram.max_abs_moment();
-    let x_last = diagram.points.last().map(|p| p.0).unwrap_or(0.0);
-    if !span.is_finite() || span <= 0.0 || !x_last.is_finite() || x_last <= 0.0 {
-        return;
-    }
-
-    let half_height = rect.height() * 0.45;
-    let mut points: Vec<egui::Pos2> = Vec::with_capacity(diagram.points.len());
-    for &(x, m) in &diagram.points {
-        if !(x.is_finite() && m.is_finite()) {
-            continue;
-        }
-        points.push(egui::pos2(
-            rect.left() + (x / x_last) as f32 * rect.width(),
-            mid_y - (m / span) as f32 * half_height,
-        ));
-    }
-    if points.len() >= 2 {
-        painter.add(egui::Shape::line(
-            points,
-            egui::Stroke::new(2.0, egui::Color32::from_rgb(200, 60, 60)),
-        ));
-    }
-}
-
 impl eframe::App for FreeruschApp {
     fn ui(&mut self, ui: &mut egui::Ui, _frame: &mut eframe::Frame) {
         ui.heading("FreeRusch");
-        ui.label("Cálculo de lajes de pontes pelo método de Rüsch (NBR 7188:2013).");
+        ui.label("Lajes de pontes pelo método de Rüsch — tabelas DIN/IBSW (NBR 7188:2013).");
         ui.separator();
 
         // Barra de ferramentas do projeto (.frus).
@@ -398,7 +336,7 @@ impl eframe::App for FreeruschApp {
 }
 
 impl FreeruschApp {
-    /// Aba "Inputs": formulário do painel.
+    /// Aba "Inputs": tabela de Rüsch e cargas.
     fn inputs_tab(&mut self, ui: &mut egui::Ui) {
         ui.horizontal(|ui| {
             ui.label("Título:");
@@ -408,30 +346,79 @@ impl FreeruschApp {
                     .hint_text("Viaduto Centro — Painel P1"),
             );
         });
+
+        ui.add_space(4.0);
+        ui.label("Tabela de Rüsch");
         ui.horizontal(|ui| {
-            ui.label("Vão l₁ (m):");
+            ui.label("Nr:");
+            ui.add(egui::DragValue::new(&mut self.project.table_number).range(1..=102));
+            let mut variant = match self.project.table_variant {
+                Some(1) => 0,
+                Some(2) => 1,
+                _ => 2,
+            };
+            egui::ComboBox::from_label("Variante")
+                .selected_text(match variant {
+                    0 => ".1",
+                    1 => ".2",
+                    _ => "(sem variante)",
+                })
+                .show_ui(ui, |ui| {
+                    ui.selectable_value(&mut variant, 0, ".1");
+                    ui.selectable_value(&mut variant, 1, ".2");
+                    ui.selectable_value(&mut variant, 2, "(sem variante)");
+                });
+            self.project.table_variant = match variant {
+                0 => Some(1),
+                1 => Some(2),
+                _ => None,
+            };
+            match self.project.table_label() {
+                Some(label) => ui.label(format!("→ {label}")),
+                None => ui.colored_label(
+                    egui::Color32::from_rgb(170, 40, 40),
+                    "tabela inexistente no acervo",
+                ),
+            };
+        });
+
+        ui.add_space(4.0);
+        ui.label("Geometria");
+        ui.horizontal(|ui| {
+            ui.label("Vão lx (m):");
             ui.add(
-                egui::DragValue::new(&mut self.project.l1_m)
+                egui::DragValue::new(&mut self.project.lx_m)
                     .range(1.0..=40.0)
-                    .speed(0.1),
+                    .speed(0.05)
+                    .fixed_decimals(2),
             );
-            ui.label("Vão vizinho l₂ (m):");
+            ui.label("Laje h (m):");
             ui.add(
-                egui::DragValue::new(&mut self.project.l2_m)
-                    .range(0.0..=40.0)
-                    .speed(0.1),
+                egui::DragValue::new(&mut self.project.slab_m)
+                    .range(0.10..=1.00)
+                    .speed(0.005)
+                    .fixed_decimals(3),
             );
         });
         ui.horizontal(|ui| {
-            ui.label("Largura do tabuleiro b (m):");
+            ui.label("Pavimento (m):");
             ui.add(
-                egui::DragValue::new(&mut self.project.deck_width_m)
-                    .range(3.0..=30.0)
-                    .speed(0.1),
+                egui::DragValue::new(&mut self.project.pavement_m)
+                    .range(0.0..=0.20)
+                    .speed(0.005)
+                    .fixed_decimals(3),
             );
-            ui.label("Nº de vãos:");
-            ui.add(egui::DragValue::new(&mut self.project.spans).range(1..=4));
+            ui.label("Distância entre rodas a (m):");
+            ui.add(
+                egui::DragValue::new(&mut self.project.wheel_spacing_m)
+                    .range(0.5..=5.0)
+                    .speed(0.05)
+                    .fixed_decimals(2),
+            );
         });
+
+        ui.add_space(4.0);
+        ui.label("Cargas");
         ui.horizontal(|ui| {
             egui::ComboBox::from_label("Trem-tipo")
                 .selected_text(self.project.train.as_str())
@@ -444,68 +431,102 @@ impl FreeruschApp {
                         );
                     }
                 });
-            egui::ComboBox::from_label("Condição de borda")
-                .selected_text(edge_label(&self.project.edge))
-                .show_ui(ui, |ui| {
-                    ui.selectable_value(
-                        &mut self.project.edge,
-                        EDGE_SIMPLY_SUPPORTED.to_string(),
-                        "Biapoiada",
-                    );
-                    ui.selectable_value(
-                        &mut self.project.edge,
-                        EDGE_CLAMPED.to_string(),
-                        "Engastada",
-                    );
-                });
+            if ui.button("Aplicar padrões do trem-tipo").clicked()
+                && let Ok(train) = self.project.train_type()
+            {
+                let (wheel, uniform) = train_defaults(train);
+                self.project.wheel_load_kn = wheel;
+                self.project.uniform_load_kn_m2 = uniform;
+            }
         });
+        ui.horizontal(|ui| {
+            ui.label("Permanente g (kN/m²):");
+            ui.add(
+                egui::DragValue::new(&mut self.project.permanent_load_kn_m2)
+                    .range(0.5..=100.0)
+                    .speed(0.1)
+                    .fixed_decimals(2),
+            );
+            ui.label("Roda P (kN):");
+            ui.add(
+                egui::DragValue::new(&mut self.project.wheel_load_kn)
+                    .range(5.0..=250.0)
+                    .speed(1.0)
+                    .fixed_decimals(1),
+            );
+            ui.label("Uniforme q (kN/m²):");
+            ui.add(
+                egui::DragValue::new(&mut self.project.uniform_load_kn_m2)
+                    .range(0.5..=30.0)
+                    .speed(0.1)
+                    .fixed_decimals(1),
+            );
+        });
+
         ui.horizontal(|ui| {
             ui.label("Concreto:");
             ui.add(
                 egui::TextEdit::singleline(&mut self.project.concrete_class).desired_width(90.0),
             );
-            ui.label("(ex.: C25/30, C30/37, C40/50)");
+            ui.label("(ex.: C25/30, C30/37)");
         });
+
         ui.add_space(8.0);
         if ui.button("Calcular").clicked() {
             self.calculate();
         }
-        if let Ok(tab) = self.project.train_type() {
+
+        if let Ok(train) = self.project.train_type() {
             self.settings
-                .update(|s| s.general.train = tab.label().to_string());
+                .update(|s| s.general.train = train.label().to_string());
         }
     }
 
-    /// Aba "Results": coeficientes, momentos e diagrama.
+    /// Aba "Results": momentos característicos e de projeto.
     fn results_tab(&mut self, ui: &mut egui::Ui) {
-        let Some(moment) = self.result else {
+        if self.moments.is_empty() {
             ui.label("Ainda sem resultados — preencha a aba Inputs e clique em Calcular.");
             return;
-        };
+        }
+        let impact = freerusch_core::impact_coefficient(self.project.lx_m);
+        let spread =
+            freerusch_core::load_spread_width_m(self.project.pavement_m, self.project.slab_m);
+        ui.horizontal(|ui| {
+            if let Ok(value) = impact {
+                ui.label(format!("φ = {value:.4}"));
+            }
+            if let Ok(value) = spread {
+                ui.label(format!("t = {value:.4} m"));
+            }
+            ui.label(format!(
+                "lx/a = {:.3}",
+                self.project.lx_m / self.project.wheel_spacing_m
+            ));
+        });
+        ui.add_space(4.0);
+
         egui::Grid::new("freerusch-results")
-            .num_columns(2)
+            .num_columns(4)
             .striped(true)
             .show(ui, |ui| {
-                ui.label("α (positivo)");
-                ui.label(format!("{:.4}", moment.alpha));
+                ui.label("Resultante");
+                ui.label("M_g (kN·m/m)");
+                ui.label("M_q (kN·m/m)");
+                ui.label("M_d (kN·m/m)");
                 ui.end_row();
-                ui.label("β (negativo)");
-                ui.label(
-                    moment
-                        .beta
-                        .map(|b| format!("{b:.4}"))
-                        .unwrap_or_else(|| "—".to_string()),
-                );
-                ui.end_row();
-                ui.label("M⁺ vão (kN·m/m)");
-                ui.label(format!("{:.3}", moment.max_positive));
-                ui.end_row();
-                ui.label("M⁻ apoio (kN·m/m)");
-                ui.label(format!("{:.3}", moment.max_negative));
-                ui.end_row();
+                for moment in &self.moments {
+                    ui.label(&moment.resultant);
+                    ui.label(format!("{:.3}", moment.permanent));
+                    ui.label(format!("{:.3}", moment.live));
+                    ui.strong(format!("{:.3}", moment.design));
+                    ui.end_row();
+                }
             });
-        ui.add_space(8.0);
-        draw_diagram(ui, &self.diagram);
+        ui.add_space(6.0);
+        ui.label(
+            "Coeficientes de ponderação: γg = 1,35 e γq = 1,5. \
+             Nas resultantes de borda (Mxe/Mye) a tração é na face superior.",
+        );
     }
 
     /// Aba "Report": exportação da memória de cálculo.
@@ -532,7 +553,7 @@ impl FreeruschApp {
             return;
         }
         ui.label(format!(
-            "Documento autocontido, {} bytes, com diagrama SVG embutido.",
+            "Documento autocontido, {} bytes, declarando tabela, hipóteses e coeficientes.",
             self.report_html.len()
         ));
         egui::ScrollArea::vertical().show(ui, |ui| {
@@ -543,21 +564,10 @@ impl FreeruschApp {
     }
 }
 
-/// Rótulo em português para a condição de borda gravada no projeto.
-fn edge_label(edge: &str) -> &'static str {
-    if edge.eq_ignore_ascii_case(EDGE_CLAMPED) {
-        "Engastada"
-    } else if edge.eq_ignore_ascii_case(EDGE_SIMPLY_SUPPORTED) {
-        "Biapoiada"
-    } else {
-        "Desconhecida"
-    }
-}
-
 fn main() -> eframe::Result {
     let options = eframe::NativeOptions {
         viewport: egui::ViewportBuilder::default()
-            .with_inner_size([760.0, 560.0])
+            .with_inner_size([820.0, 600.0])
             .with_title("FreeRusch"),
         ..Default::default()
     };
