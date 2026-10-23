@@ -48,6 +48,9 @@ values (spreadsheet cell, normative clause, hand calculation).
 - **Never invent normative values.** Every coefficient or factor carries a
   comment naming its source. If the source is missing, add the item to the
   blocked list in `docs/ROADMAP.md` instead of guessing.
+- **No hardcoded UI colors.** Interface code reads `theme::pal(ui)` and uses only
+  its tokens; the palette derives from the active egui theme and its contrast is
+  covered by tests. Prefer the configured text styles over literal font sizes.
 - Errors use `thiserror`, typed per crate (`RuschError`, `ReportError`,
   `ProjectError`).
 - `///` docs on every public item. Public API changes update the README example.

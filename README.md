@@ -59,12 +59,25 @@ cargo run -p freerusch          # abre a janela "FreeRusch"
 cargo test --workspace          # testes do motor de cálculo e do relatório
 ```
 
-A janela tem três abas: **Inputs** (tabela de Rüsch e cargas), **Results**
-(momentos característicos e de projeto, por resultante) e **Report** (memória de
-cálculo). O projeto completo é gravado em `.frus` (JSON versionado, escrita
-atômica via `craft-atomic`) e a memória de cálculo é exportada em HTML
-autocontido, declarando a tabela usada, as hipóteses e os coeficientes — sem
-arquivos externos nem JavaScript.
+A janela tem três abas: **Inputs** (esquema, parâmetros e tabela de
+coeficientes), **Results** (momentos característicos e de projeto, por
+resultante) e **Report** (memória de cálculo). O projeto completo é gravado em
+`.frus` (JSON versionado, escrita atômica via `craft-atomic`) e a memória de
+cálculo é exportada em HTML autocontido, declarando a tabela usada, as hipóteses
+e os coeficientes — sem arquivos externos nem JavaScript.
+
+A aba Inputs segue o fluxo de um cálculo de laje de ponte: desenho esquemático
+vetorial da seção (reage a vão, espessura, vinculações e direção do tráfego),
+parâmetros à direita, barra de ações com `Calcular` e os esforços `Mxm`/`Mym`/`Mxe`,
+tabela de coeficientes com a linha e a coluna da interpolação em uso destacadas,
+painel de resultados e rodapé com a unidade e o estado do cálculo.
+
+![Aba Inputs no tema escuro](docs/img/inputs-dark.png)
+
+O tema segue o sistema e pode ser trocado em **Opções → Tema**; as cores vêm
+todas de `theme::pal()`, derivadas do tema ativo, com contraste verificado por
+teste ([tema claro](docs/img/inputs-light.png)). `FREERUSCH_THEME=dark|light`
+força o tema, útil para captura automatizada.
 
 Defina `FREERUSCH_NO_PREFS=1` para rodar sem criar `config.toml` no perfil do
 sistema (útil em CI/containers).

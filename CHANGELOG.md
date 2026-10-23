@@ -7,6 +7,50 @@ projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 
 O escopo de cada release está em [docs/ROADMAP.md](docs/ROADMAP.md).
 
+## [Não publicado]
+
+### Adicionado
+
+- **Aba Inputs reorganizada** no fluxo de um cálculo de laje de ponte: barra de
+  menus (Arquivo, Opções, Resultados, Sobre), desenho esquemático vetorial à
+  esquerda, parâmetros à direita, barra de ações, tabela de coeficientes com a
+  interpolação em uso destacada, painel de resultados e rodapé com a unidade e o
+  estado do cálculo.
+- **Desenho esquemático em `egui::Painter`** (`apps/freerusch/src/schematic.rs`):
+  seção da laje com pavimentação, símbolos de vinculação por borda (apoio,
+  engaste, livre, indefinida), área de carga em trapézio, cotas de `lx`, `h` e `a`
+  e o momento em exibição. Reage a cada mudança de campo.
+- **Módulo `theme`** (`apps/freerusch/src/theme.rs`): paleta derivada do tema
+  ativo (`TEXT`, `TEXT_WEAK`, `SURFACE`, `GRID`, `HIGHLIGHT`, `READ_ONLY`,
+  `ACCENT`, `DANGER`) e tipografia de 14 pt para corpo e 16 pt para títulos.
+  Contraste mínimo verificado por teste em tema claro e escuro.
+- **Tema selecionável** (Sistema/Claro/Escuro) em **Opções → Tema**, persistido em
+  `config.toml`; `FREERUSCH_THEME=dark|light` força o tema na inicialização.
+- **Diálogos** de caminhos de arquivo e "Sobre", e menu **Resultados** com os
+  esforços `Mxm`/`Mym`/`Mxe`.
+- **API de leitura de coeficientes em `freerusch-core`** para a UI não calcular
+  nada por conta própria: `interpolated_wheel_coefficient`,
+  `interpolated_uniform_coefficient`, `panel_coefficient`, `wheel_columns`,
+  `uniform_column` e a constante `WHEEL_SPACING_M` (`a = 2,00 m`, convenção das
+  tabelas).
+- O exemplo do workbook já abre calculado; o rodapé indica `Calculado` ou
+  `Alterado após o último cálculo`.
+- Capturas da aba Inputs nos dois temas: `docs/img/inputs-dark.png` e
+  `docs/img/inputs-light.png`.
+
+### Corrigido
+
+- **Fundo da janela nunca era pintado.** O `App::ui` do eframe não pinta o fundo;
+  a janela mostrava a cor de limpeza do backend. No tema escuro passava
+  despercebido, no claro o texto escuro ficava sobre fundo preto. Agora o fundo
+  é pintado a partir de `visuals().panel_fill`.
+- **Campos somente leitura ilegíveis no tema claro**, por derivarem a superfície
+  de cinzas internos do egui. `SURFACE` e `READ_ONLY` passam a ser derivados do
+  texto do tema, com teste de contraste.
+- **Coluna da tabela encolhendo**: `allocate_ui_with_layout` aloca apenas a largura
+  usada, o que puxava o painel de resultados para o meio da tela. A coluna agora
+  preenche a largura reservada.
+
 ## [0.1.0] — 2026-10-22
 
 Primeiro release público. O binário de Windows x86_64 sai como artefato desta tag;
