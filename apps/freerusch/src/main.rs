@@ -15,6 +15,27 @@
 mod schematic;
 mod theme;
 
+/// Compatibilidade de símbolos com a glibc do Linux.
+///
+/// O binário de release é compilado em Ubuntu 26.04 (glibc 2.43), que versiona
+/// `atan2f` e `acosf` como `GLIBC_2.43`. Só esses dois símbolos elevariam o piso
+/// do binário inteiro para 2.43, excluindo praticamente todas as distribuições
+/// em uso. Definindo-os localmente, o requisito volta ao resto do binário
+/// (glibc 2.35, Ubuntu 22.04+), sem perda de precisão: o cálculo é feito em
+/// `f64` e arredondado para `f32`.
+#[cfg(all(target_os = "linux", not(debug_assertions)))]
+mod glibc_math_shim {
+    #[unsafe(no_mangle)]
+    extern "C" fn atan2f(y: f32, x: f32) -> f32 {
+        f64::from(y).atan2(f64::from(x)) as f32
+    }
+
+    #[unsafe(no_mangle)]
+    extern "C" fn acosf(x: f32) -> f32 {
+        f64::from(x).acos() as f32
+    }
+}
+
 use std::path::Path;
 
 use eframe::egui::{
