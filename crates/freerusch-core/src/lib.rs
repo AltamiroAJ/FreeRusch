@@ -418,6 +418,87 @@ pub fn live_load_moments(
     Ok(moments)
 }
 
+/// Distância transversal entre rodas `a`, convenção das tabelas de Rüsch.
+///
+/// As notas de aula do IME (p. 1) definem `a` como a distância transversal entre
+/// rodas e usam `a = 2,00 m` no exemplo validado; é essa a convenção que entra
+/// nas tabelas como `lx/a` e `t/a`.
+pub const WHEEL_SPACING_M: f64 = 2.0;
+
+/// Coeficiente de roda `L` interpolado em `(lx/a, t/a)`.
+///
+/// Expõe o mesmo interpolador que [`live_load_moments`] usa, para que a UI possa
+/// exibir `M_L` sem reimplementar cálculo.
+#[must_use]
+pub fn interpolated_wheel_coefficient(
+    table: &RuschTableData,
+    resultant: &str,
+    lx_over_a: f64,
+    t_over_a: f64,
+) -> Option<f64> {
+    wheel_coefficient(table, resultant, lx_over_a, t_over_a)
+}
+
+/// Coeficiente da carga uniforme (`"p"` ou `"p'"`) interpolado em `lx/a`.
+///
+/// Mesmo interpolador de [`live_load_moments`], exposto para a UI exibir
+/// `M_p` e `M_p'`.
+#[must_use]
+pub fn interpolated_uniform_coefficient(
+    table: &RuschTableData,
+    resultant: &str,
+    letter: &str,
+    lx_over_a: f64,
+) -> Option<f64> {
+    uniform_coefficient(table, resultant, letter, lx_over_a)
+}
+
+/// Coeficiente fixo do painel (`k`) de uma resultante, usado na carga permanente.
+#[must_use]
+pub fn panel_coefficient(table: &RuschTableData, resultant: &str) -> Option<f64> {
+    table
+        .panel_coefficients
+        .iter()
+        .find(|coefficient| resultant_key(&coefficient.name) == Some(resultant))
+        .map(|coefficient| coefficient.value)
+}
+
+/// Colunas de roda (`L`) de uma resultante, ordenadas por `t/a`.
+///
+/// É o insumo da tabela exibida na UI: a UI não interpreta rótulos nem ordena
+/// coeficientes por conta própria.
+#[must_use]
+pub fn wheel_columns<'a>(table: &'a RuschTableData, resultant: &str) -> Vec<&'a RuschColumn> {
+    let mut columns: Vec<&RuschColumn> = table
+        .columns
+        .iter()
+        .filter(|column| {
+            column.letter == "L"
+                && column.ta.is_some()
+                && resultant_key(&column.group) == Some(resultant)
+        })
+        .collect();
+    columns.sort_by(|left, right| {
+        left.ta
+            .partial_cmp(&right.ta)
+            .unwrap_or(std::cmp::Ordering::Equal)
+    });
+    columns
+}
+
+/// Coluna de carga uniforme (`"p"` ou `"p'"`) de uma resultante, se existir.
+#[must_use]
+pub fn uniform_column<'a>(
+    table: &'a RuschTableData,
+    resultant: &str,
+    letter: &str,
+) -> Option<&'a RuschColumn> {
+    table
+        .columns
+        .iter()
+        .find(|column| column.letter == letter && resultant_key(&column.group) == Some(resultant))
+}
+
 /// Coeficiente de ponderação das ações permanentes (ELU, combinação normal).
 pub const GAMMA_G: f64 = 1.35;
 
@@ -1001,5 +1082,47 @@ mod tests {
             concrete_characteristic_strength("C99/99"),
             Err(RuschError::UnknownConcreteClass { .. })
         ));
+    }
+
+    #[test]
+    fn interpolated_coefficients_match_the_live_load_math() {
+        // Tabela Nr 65.1, lx/a = 3,5 e t/a = 0,36 (exemplo do workbook).
+        // Valores conferidos contra a interpolação usada em live_load_moments.
+        let table = RuschTableData::find(65, Some(1)).expect("tabela Nr 65.1");
+        let wheel = interpolated_wheel_coefficient(table, "Mxm", 3.5, 0.36).expect("ML");
+        assert!((wheel - 0.583).abs() < 1e-3, "ML = {wheel}");
+
+        let positive = interpolated_uniform_coefficient(table, "Mxm", "p", 3.5).expect("Mp");
+        assert!((positive - 0.025).abs() < 1e-3, "Mp = {positive}");
+
+        let negative = interpolated_uniform_coefficient(table, "Mxm", "p'", 3.5).expect("Mp'");
+        assert!((negative - 2.475).abs() < 1e-3, "Mp' = {negative}");
+    }
+
+    #[test]
+    fn panel_coefficient_reads_the_header_value() {
+        // Cabeçalho da tabela Nr 65.1: Mxm = 0,063.
+        let table = RuschTableData::find(65, Some(1)).expect("tabela Nr 65.1");
+        assert_eq!(panel_coefficient(table, "Mxm"), Some(0.063));
+        assert_eq!(panel_coefficient(table, "Inexistente"), None);
+    }
+
+    #[test]
+    fn wheel_spacing_is_the_documented_reference_value() {
+        // Notas do IME, p. 1: a = distância transversal entre rodas = 2,00 m.
+        assert_eq!(WHEEL_SPACING_M, 2.0);
+    }
+
+    #[test]
+    fn table_columns_are_exposed_for_the_ui() {
+        let table = RuschTableData::find(65, Some(1)).expect("tabela Nr 65.1");
+        let wheels = wheel_columns(table, "Mxm");
+        assert_eq!(wheels.len(), 4, "quatro colunas t/a");
+        assert_eq!(wheels[0].ta, Some(0.125));
+        assert_eq!(wheels[3].ta, Some(1.0));
+
+        assert!(uniform_column(table, "Mxm", "p").is_some());
+        assert!(uniform_column(table, "Mxm", "p'").is_some());
+        assert!(uniform_column(table, "Mxm", "z").is_none());
     }
 }
